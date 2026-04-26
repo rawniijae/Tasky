@@ -298,7 +298,6 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          </View>
         </Animated.View>
 
         {/* Update Center */}
