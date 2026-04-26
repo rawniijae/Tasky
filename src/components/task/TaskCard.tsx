@@ -24,6 +24,9 @@ interface TaskCardProps {
   onToggle: () => void;
   onDelete: () => void;
   index?: number;
+  isSelected?: boolean;
+  selectionMode?: boolean;
+  onLongPress?: () => void;
 }
 
 export function TaskCard({
@@ -32,6 +35,9 @@ export function TaskCard({
   onToggle,
   onDelete,
   index = 0,
+  isSelected = false,
+  selectionMode = false,
+  onLongPress,
 }: TaskCardProps) {
   const { colors, typography: t, spacing: sp, borderRadius: br, priorityColors: pc, isDark } = useTheme();
 
@@ -57,113 +63,118 @@ export function TaskCard({
     >
 
 
-      <SwipeableRow
-        onSwipeRight={onToggle}
-        onSwipeLeft={onDelete}
-        rightLabel={task.completed ? 'Undo' : 'Done'}
-        rightIcon={task.completed ? 'arrow-undo' : 'checkmark-circle'}
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        delayLongPress={200}
+        style={[
+          styles.card,
+          {
+            backgroundColor: isSelected ? colors.primary + '20' : colors.cardBg,
+            borderColor: isSelected ? colors.primary : colors.cardBorder,
+            borderRadius: br.xl,
+            borderLeftColor: isSelected ? colors.primary : pColor.accent,
+            borderLeftWidth: 3,
+          },
+        ]}
       >
-        <Pressable
-          onPress={onPress}
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.cardBg,
-              borderColor: colors.cardBorder,
-              borderRadius: br.xl,
-              borderLeftColor: pColor.accent,
-              borderLeftWidth: 3,
-            },
-          ]}
-        >
-          <View style={styles.content}>
-            <View style={styles.topRow}>
+        <View style={styles.content}>
+          <View style={styles.topRow}>
+            {selectionMode ? (
+              <View style={{ justifyContent: 'center', alignItems: 'center', width: 22, height: 22 }}>
+                <Ionicons 
+                  name={isSelected ? "checkmark-circle" : "ellipse-outline"} 
+                  size={22} 
+                  color={isSelected ? colors.primary : colors.textTertiary} 
+                />
+              </View>
+            ) : (
               <AnimatedCheckbox
                 checked={task.completed}
                 onToggle={onToggle}
                 color={pColor.accent}
                 size={22}
               />
-              <View style={styles.titleContainer}>
-                <Animated.Text
-                  style={[t.titleSmall, { color: colors.text }, titleStyle]}
-                  numberOfLines={1}
-                >
-                  {task.title}
-                </Animated.Text>
-                {task.description ? (
-                  <Text
-                    style={[
-                      t.bodySmall,
-                      { color: colors.textTertiary, marginTop: 2 },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {task.description}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-
-            {/* Meta row */}
-            <View style={styles.metaRow}>
-              {category && (
-                <Badge
-                  label={category.label}
-                  icon={category.icon as any}
-                  color={category.color}
-                  backgroundColor={
-                    isDark
-                      ? `${category.color}20`
-                      : `${category.color}15`
-                  }
-                />
-              )}
-              <Badge
-                label={PRIORITY_LABELS[task.priority]}
-                color={pColor.text}
-                backgroundColor={pColor.bg}
-                size="sm"
-              />
-              {task.dueDate && (
-                <Badge
-                  label={formatRelativeDate(task.dueDate)}
-                  icon={overdue ? 'alert-circle' : 'calendar-outline'}
-                  color={overdue ? colors.danger : colors.textSecondary}
-                  backgroundColor={
-                    overdue
-                      ? isDark
-                        ? 'rgba(244,63,94,0.15)'
-                        : '#FEE2E2'
-                      : colors.backgroundSecondary
-                  }
-                  size="sm"
-                />
-              )}
-            </View>
-
-            {/* Subtask progress */}
-            {task.subtasks.length > 0 && (
-              <View style={styles.subtaskRow}>
-                <ProgressBar
-                  progress={subtaskProgress}
-                  height={4}
-                  style={{ flex: 1 }}
-                />
+            )}
+            <View style={styles.titleContainer}>
+              <Animated.Text
+                style={[t.titleSmall, { color: colors.text }, titleStyle]}
+                numberOfLines={1}
+              >
+                {task.title}
+              </Animated.Text>
+              {task.description ? (
                 <Text
                   style={[
-                    t.caption,
-                    { color: colors.textTertiary, marginLeft: sp.sm },
+                    t.bodySmall,
+                    { color: colors.textTertiary, marginTop: 2 },
                   ]}
+                  numberOfLines={1}
                 >
-                  {task.subtasks.filter((st) => st.completed).length}/
-                  {task.subtasks.length}
+                  {task.description}
                 </Text>
-              </View>
+              ) : null}
+            </View>
+          </View>
+
+          {/* Meta row */}
+          <View style={styles.metaRow}>
+            {category && (
+              <Badge
+                label={category.label}
+                icon={category.icon as any}
+                color={category.color}
+                backgroundColor={
+                  isDark
+                    ? `${category.color}20`
+                    : `${category.color}15`
+                }
+              />
+            )}
+            <Badge
+              label={PRIORITY_LABELS[task.priority]}
+              color={pColor.text}
+              backgroundColor={pColor.bg}
+              size="sm"
+            />
+            {task.dueDate && (
+              <Badge
+                label={formatRelativeDate(task.dueDate)}
+                icon={overdue ? 'alert-circle' : 'calendar-outline'}
+                color={overdue ? colors.danger : colors.textSecondary}
+                backgroundColor={
+                  overdue
+                    ? isDark
+                      ? 'rgba(244,63,94,0.15)'
+                      : '#FEE2E2'
+                    : colors.backgroundSecondary
+                }
+                size="sm"
+              />
             )}
           </View>
-        </Pressable>
-      </SwipeableRow>
+
+          {/* Subtask progress */}
+          {task.subtasks.length > 0 && (
+            <View style={styles.subtaskRow}>
+              <ProgressBar
+                progress={subtaskProgress}
+                height={4}
+                style={{ flex: 1 }}
+              />
+              <Text
+                style={[
+                  t.caption,
+                  { color: colors.textTertiary, marginLeft: sp.sm },
+                ]}
+              >
+                {task.subtasks.filter((st) => st.completed).length}/
+                {task.subtasks.length}
+              </Text>
+            </View>
+          )}
+        </View>
+      </Pressable>
     </Animated.View>
   );
 }

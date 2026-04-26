@@ -107,7 +107,7 @@ interface TaskState {
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
-  clearCompletedTasks: () => void;
+  clearActiveTasks: () => void;
 
   // Subtasks
   addSubtask: (taskId: string, title: string) => void;
@@ -211,14 +211,14 @@ export const useTaskStore = create<TaskState>()(
         set({ tasks: get().tasks.filter((t) => t.id !== id) });
       },
       
-      clearCompletedTasks: () => {
-        const completedTasks = get().tasks.filter(t => t.completed);
-        completedTasks.forEach(t => {
+      clearActiveTasks: () => {
+        const activeTasks = get().tasks.filter(t => !t.completed);
+        activeTasks.forEach(t => {
           if (t.notificationIds) {
             t.notificationIds.forEach(nid => cancelNotification(nid));
           }
         });
-        set({ tasks: get().tasks.filter((t) => !t.completed) });
+        set({ tasks: get().tasks.filter((t) => t.completed) });
       },
 
       toggleTask: (id) => {

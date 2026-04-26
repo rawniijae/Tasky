@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { ScrollView as ScrollViewType } from 'react-native';
-import { View, Text, Pressable, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Platform, AppState } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,6 +31,7 @@ export default function FocusScreen() {
   const pauseTimer = useFocusStore((s) => s.pauseTimer);
   const resetTimer = useFocusStore((s) => s.resetTimer);
   const tick = useFocusStore((s) => s.tick);
+  const syncTime = useFocusStore((s) => s.syncTime);
   const skipToNext = useFocusStore((s) => s.skipToNext);
   const getTodayFocusMinutes = useFocusStore((s) => s.getTodayFocusMinutes);
   const getWeeklyFocusData = useFocusStore((s) => s.getWeeklyFocusData);
@@ -48,7 +49,23 @@ export default function FocusScreen() {
   const weeklyData = getWeeklyFocusData();
   const maxWeekly = Math.max(...weeklyData.map((d) => d.minutes), 1);
 
-  // Timer interval
+  // 1. AppState listener for background/foreground sync
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        syncTime();
+      }
+    });
+
+    // Also sync on mount
+    syncTime();
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  // 2. Timer interval
   useEffect(() => {
     if (timerState === 'running') {
       intervalRef.current = setInterval(() => {
@@ -95,7 +112,7 @@ export default function FocusScreen() {
       : colors.info;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
@@ -103,7 +120,7 @@ export default function FocusScreen() {
         decelerationRate={Platform.OS === 'android' ? 0.985 : 'normal'}
         overScrollMode="never"
       >
-      <View style={{ paddingTop: insets.top + 12 }}>
+      <View style={{ paddingTop: 12 }}>
         <Text style={[t.headlineLarge, { color: colors.text, paddingHorizontal: 20 }]}>
           Focus
         </Text>
@@ -201,7 +218,7 @@ export default function FocusScreen() {
         <GlassCard style={styles.statCard}>
           <Ionicons name="time-outline" size={20} color={colors.primary} />
           <Text style={[t.titleMedium, { color: colors.text, marginTop: 6 }]}>
-            {formatMinutesToDisplay(Math.round(todayMinutes))}
+            {formatMinutesToDisplay(Math.floor(todayMinutes))}
           </Text>
           <Text style={[t.caption, { color: colors.textTertiary }]}>Today</Text>
         </GlassCard>

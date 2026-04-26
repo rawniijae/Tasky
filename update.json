@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "url": "https://github.com/rawniijae/Tasky/releases/latest",
+  "releaseNotes": "Initial release with smooth swiping and broadcast messages!",
+  "isMandatory": false,
+  "broadcast": {
+    "id": "welcome-message-001",
+    "text": "Welcome to Tasky! I hope everyone are doing well.Tap this message to dismiss it. ",
+    "type": "personal"
+  }
+}

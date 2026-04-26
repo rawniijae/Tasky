@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -21,13 +22,14 @@ export function FAB({ onPress, icon = 'add' }: FABProps) {
   const { colors } = useTheme();
   const haptics = useHaptics();
   const scale = useSharedValue(1);
+  const insets = useSafeAreaInsets();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   return (
-    <Animated.View style={[styles.container]}>
+    <Animated.View style={[styles.container, { bottom: 70 + insets.bottom }]}>
       <AnimatedPressable
         onPress={() => {
           haptics.medium();

@@ -85,15 +85,17 @@ export function DateTimePicker({
     setError(err);
 
     if (!err) {
-      const hNum = parseInt(sanitizedH);
+      let hNum = parseInt(sanitizedH);
       const mNum = parseInt(sanitizedM);
       
-      let finalH = hNum;
-      if (!is24) {
-        if (pm && hNum < 12) finalH += 12;
-        if (!pm && hNum === 12) finalH = 0;
+      // If user is typing a 12-hour-like number, apply AM/PM logic
+      // This makes the AM/PM buttons useful even in 24h mode
+      if (hNum <= 12) {
+        if (pm && hNum < 12) hNum += 12;
+        if (!pm && hNum === 12) hNum = 0;
       }
-      onTimeChange(`${finalH.toString().padStart(2, '0')}:${mNum.toString().padStart(2, '0')}`);
+      
+      onTimeChange(`${hNum.toString().padStart(2, '0')}:${mNum.toString().padStart(2, '0')}`);
     }
   };
 
@@ -107,20 +109,43 @@ export function DateTimePicker({
     if (!pm && hNum === 12) finalH = 0;
     
     onTimeChange(`${finalH.toString().padStart(2, '0')}:${mNum.toString().padStart(2, '0')}`);
+    // Update local display immediately
+    setHInput(is24Hour ? finalH.toString() : (finalH === 0 ? '12' : finalH > 12 ? (finalH - 12).toString() : finalH.toString()));
   };
+
+  // Sync local input state with prop changes (e.g., from toggle or parent)
+  React.useEffect(() => {
+    if (dueTime) {
+      const [h, m] = dueTime.split(':');
+      const hNum = parseInt(h);
+      const displayH = is24Hour ? hNum : (hNum === 0 ? 12 : hNum > 12 ? hNum - 12 : hNum);
+      setHInput(displayH.toString());
+      setMInput(m);
+    }
+  }, [dueTime, is24Hour]);
 
   return (
     <View style={styles.container}>
-      {/* Date presets */}
-      <Text style={[t.labelMedium, { color: colors.textSecondary, marginBottom: sp.sm, marginLeft: sp.xs }]}>
-        Due Date
-      </Text>
+      {/* Selected Date Display */}
+      <View style={styles.dateHeader}>
+        <Text style={[t.labelMedium, { color: colors.textSecondary }]}>
+          Due Date
+        </Text>
+        {dueDate && (
+          <Text style={[t.bodySmall, { color: colors.primary, fontWeight: '600' }]}>
+            {new Date(dueDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+          </Text>
+        )}
+      </View>
       <View style={styles.presetsRow}>
         {datePresets.map((preset) => {
-          const isSelected =
-            preset.value === 'none'
-              ? !dueDate
-              : dueDate && formatRelativeDate(dueDate) === preset.label;
+          let isSelected = false;
+          if (preset.value === 'none') {
+            isSelected = !dueDate;
+          } else if (dueDate) {
+            const presetDate = getDateForPreset(preset.value);
+            isSelected = new Date(dueDate).toDateString() === new Date(presetDate).toDateString();
+          }
 
           return (
             <Pressable
@@ -247,22 +272,20 @@ export function DateTimePicker({
               selectTextOnFocus
             />
             
-            {!is24Hour && (
-              <View style={styles.amPmContainer}>
-                <Pressable 
-                  onPress={() => toggleAmPm(false)}
-                  style={[styles.amPmBtn, !isPM && { backgroundColor: colors.primary }]}
-                >
-                  <Text style={[t.labelSmall, { color: !isPM ? '#FFF' : colors.textTertiary, fontWeight: '700' }]}>AM</Text>
-                </Pressable>
-                <Pressable 
-                  onPress={() => toggleAmPm(true)}
-                  style={[styles.amPmBtn, isPM && { backgroundColor: colors.primary }]}
-                >
-                  <Text style={[t.labelSmall, { color: isPM ? '#FFF' : colors.textTertiary, fontWeight: '700' }]}>PM</Text>
-                </Pressable>
-              </View>
-            )}
+            <View style={styles.amPmContainer}>
+              <Pressable 
+                onPress={() => toggleAmPm(false)}
+                style={[styles.amPmBtn, !isPM && { backgroundColor: colors.primary }]}
+              >
+                <Text style={[t.labelSmall, { color: !isPM ? '#FFF' : colors.textTertiary, fontWeight: '700' }]}>AM</Text>
+              </Pressable>
+              <Pressable 
+                onPress={() => toggleAmPm(true)}
+                style={[styles.amPmBtn, isPM && { backgroundColor: colors.primary }]}
+              >
+                <Text style={[t.labelSmall, { color: isPM ? '#FFF' : colors.textTertiary, fontWeight: '700' }]}>PM</Text>
+              </Pressable>
+            </View>
           </View>
 
           {error && (
@@ -330,6 +353,13 @@ export function DateTimePicker({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
+  },
+  dateHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 4,
   },
   presetsRow: {
     flexDirection: 'row',

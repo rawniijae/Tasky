@@ -8,21 +8,22 @@ interface FocusState {
   timerState: TimerState;
   sessionType: SessionType;
   timeRemaining: number; // seconds
+  expectedEndTime: number | null; // timestamp when session should end
   sessionsCompleted: number;
   currentTaskId: string | null;
 
-  // Settings (from store for independent access)
+  // Settings
   settings: PomodoroSettings;
 
   // History
   sessions: FocusSession[];
-  todayFocusMinutes: number;
 
   // Actions
   startTimer: () => void;
   pauseTimer: () => void;
   resetTimer: () => void;
   tick: () => boolean; // returns true if session completed
+  syncTime: () => boolean; // syncs timeRemaining based on expectedEndTime
   setCurrentTask: (taskId: string | null) => void;
   completeSession: () => void;
   skipToNext: () => void;
@@ -52,31 +53,56 @@ export const useFocusStore = create<FocusState>()(
       timerState: 'idle',
       sessionType: 'work',
       timeRemaining: defaultSettings.workDuration * 60,
+      expectedEndTime: null,
       sessionsCompleted: 0,
       currentTaskId: null,
       settings: defaultSettings,
       sessions: [],
-      todayFocusMinutes: 0,
 
-      startTimer: () => set({ timerState: 'running' }),
-      pauseTimer: () => set({ timerState: 'paused' }),
+      startTimer: () => {
+        const { timeRemaining } = get();
+        set({ 
+          timerState: 'running',
+          expectedEndTime: Date.now() + (timeRemaining * 1000)
+        });
+      },
+
+      pauseTimer: () => {
+        // Recalculate timeRemaining one last time before pausing
+        get().syncTime();
+        set({ 
+          timerState: 'paused',
+          expectedEndTime: null
+        });
+      },
 
       resetTimer: () => {
         const { sessionType, settings } = get();
         set({
           timerState: 'idle',
+          expectedEndTime: null,
           timeRemaining: getDurationForType(sessionType, settings),
         });
       },
 
-      tick: () => {
-        const { timeRemaining } = get();
-        if (timeRemaining <= 1) {
+      syncTime: () => {
+        const { timerState, expectedEndTime } = get();
+        if (timerState !== 'running' || !expectedEndTime) return false;
+
+        const now = Date.now();
+        const remaining = Math.max(0, Math.ceil((expectedEndTime - now) / 1000));
+        
+        if (remaining <= 0) {
           get().completeSession();
           return true;
         }
-        set({ timeRemaining: timeRemaining - 1 });
+        
+        set({ timeRemaining: remaining });
         return false;
+      },
+
+      tick: () => {
+        return get().syncTime();
       },
 
       setCurrentTask: (taskId) => set({ currentTaskId: taskId }),
@@ -84,7 +110,6 @@ export const useFocusStore = create<FocusState>()(
       completeSession: () => {
         const { sessionType, sessionsCompleted, settings, sessions, currentTaskId } = get();
 
-        // Record session
         if (sessionType === 'work') {
           const session: FocusSession = {
             id: `${Date.now()}`,
@@ -100,6 +125,7 @@ export const useFocusStore = create<FocusState>()(
 
           set({
             timerState: 'idle',
+            expectedEndTime: null,
             sessionType: nextType,
             timeRemaining: getDurationForType(nextType, settings),
             sessionsCompleted: newSessionsCompleted,
@@ -108,6 +134,7 @@ export const useFocusStore = create<FocusState>()(
         } else {
           set({
             timerState: 'idle',
+            expectedEndTime: null,
             sessionType: 'work',
             timeRemaining: getDurationForType('work', settings),
           });
@@ -121,6 +148,7 @@ export const useFocusStore = create<FocusState>()(
           const nextType: SessionType = isLongBreak ? 'longBreak' : 'shortBreak';
           set({
             timerState: 'idle',
+            expectedEndTime: null,
             sessionType: nextType,
             timeRemaining: getDurationForType(nextType, settings),
             sessionsCompleted: sessionsCompleted + 1,
@@ -128,6 +156,7 @@ export const useFocusStore = create<FocusState>()(
         } else {
           set({
             timerState: 'idle',
+            expectedEndTime: null,
             sessionType: 'work',
             timeRemaining: getDurationForType('work', settings),
           });
@@ -144,17 +173,18 @@ export const useFocusStore = create<FocusState>()(
 
       getTodayFocusMinutes: () => {
         const { sessions, sessionType, settings, timeRemaining } = get();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const startOfToday = new Date().setHours(0, 0, 0, 0);
         
+        // Sum of completed work sessions today
         let totalMinutes = sessions.filter(
-          (s) => s.type === 'work' && new Date(s.completedAt) >= today
+          (s) => s.type === 'work' && new Date(s.completedAt).getTime() >= startOfToday
         ).reduce((sum, s) => sum + s.duration / 60, 0);
 
-        // Add current session's elapsed time if it's work time
+        // Add current session's elapsed time ONLY if it's work time
         if (sessionType === 'work') {
           const elapsedSeconds = (settings.workDuration * 60) - timeRemaining;
-          totalMinutes += elapsedSeconds / 60;
+          // Only add full seconds, don't round up prematurely
+          totalMinutes += Math.max(0, elapsedSeconds) / 60;
         }
 
         return totalMinutes;
@@ -165,9 +195,8 @@ export const useFocusStore = create<FocusState>()(
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         const now = new Date();
         
-        // Find Monday of the current week
         const startOfWeek = new Date(now);
-        const dayOfWeek = now.getDay(); // 0 is Sunday
+        const dayOfWeek = now.getDay();
         const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
         startOfWeek.setDate(diff);
         startOfWeek.setHours(0, 0, 0, 0);
@@ -183,11 +212,10 @@ export const useFocusStore = create<FocusState>()(
             return s.type === 'work' && d >= dayStart && d < dayEnd;
           }).reduce((sum, s) => sum + s.duration / 60, 0);
 
-          // If this is today and we are in a work session, add the elapsed time
-          const isToday = now >= dayStart && now < dayEnd;
+          const isToday = now.getTime() >= dayStart.getTime() && now.getTime() < dayEnd.getTime();
           if (isToday && sessionType === 'work') {
             const elapsedSeconds = (settings.workDuration * 60) - timeRemaining;
-            minutes += elapsedSeconds / 60;
+            minutes += Math.max(0, elapsedSeconds) / 60;
           }
 
           return { day, minutes };
@@ -201,6 +229,10 @@ export const useFocusStore = create<FocusState>()(
         sessions: state.sessions,
         sessionsCompleted: state.sessionsCompleted,
         settings: state.settings,
+        expectedEndTime: state.expectedEndTime,
+        timerState: state.timerState === 'running' ? 'running' : state.timerState,
+        timeRemaining: state.timeRemaining,
+        sessionType: state.sessionType,
       }),
     }
   )

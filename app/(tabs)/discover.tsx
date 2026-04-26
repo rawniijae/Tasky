@@ -18,12 +18,12 @@ export default function DiscoverScreen() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <ScrollView
           contentContainerStyle={{
-            paddingTop: insets.top + 12,
+            paddingTop: 12,
             paddingBottom: 100,
           }}
           showsVerticalScrollIndicator={false}

@@ -2,14 +2,10 @@ import { StateStorage } from 'zustand/middleware';
 
 // ─── Universal storage adapter ───────────────────────────────
 // Tries MMKV first (fastest, native only, requires dev build).
-// Falls back to localStorage (web) or in-memory map (Expo Go).
-// This ensures the app never crashes due to missing native modules.
+// Falls back to AsyncStorage (supported in Expo Go and Dev Client).
+// Last resort is memory (no persistence).
 
-// In-memory fallback — data won't survive app restarts in Expo Go,
-// but the app will work. MMKV will work automatically once you
-// switch to a development build (`npx expo run:android/ios`).
 const memoryStore = new Map<string, string>();
-
 const memoryStorage: StateStorage = {
   getItem: (name: string) => memoryStore.get(name) ?? null,
   setItem: (name: string, value: string) => { memoryStore.set(name, value); },
@@ -19,42 +15,35 @@ const memoryStorage: StateStorage = {
 // Try to create MMKV — will only succeed in development builds
 function createMMKVStorage(): StateStorage | null {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { MMKV } = require('react-native-mmkv');
     const instance = new MMKV({ id: 'tasky-storage' });
-
-    // Verify it actually works (native bridge is available)
     instance.set('__test__', 'ok');
     instance.delete('__test__');
-
     return {
       getItem: (name: string) => instance.getString(name) ?? null,
       setItem: (name: string, value: string) => instance.set(name, value),
       removeItem: (name: string) => instance.delete(name),
     };
   } catch {
-    // MMKV native module not available (Expo Go or web)
     return null;
   }
 }
 
-// Try localStorage for web
-function createWebStorage(): StateStorage | null {
+// AsyncStorage adapter with safety check for native module availability
+function createAsyncStorageSafe(): StateStorage | null {
   try {
-    if (typeof localStorage === 'undefined') return null;
-    // Verify it works
-    localStorage.setItem('__test__', 'ok');
-    localStorage.removeItem('__test__');
-
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    // If we're in an old build without the native module, it might exist but fail on use.
+    // We'll wrap it to catch any immediate native-module-null errors.
     return {
-      getItem: (name: string) => {
-        try { return localStorage.getItem(name); } catch { return null; }
+      getItem: async (name: string) => {
+        try { return await AsyncStorage.getItem(name); } catch { return null; }
       },
-      setItem: (name: string, value: string) => {
-        try { localStorage.setItem(name, value); } catch { /* quota */ }
+      setItem: async (name: string, value: string) => {
+        try { await AsyncStorage.setItem(name, value); } catch { /* ignore */ }
       },
-      removeItem: (name: string) => {
-        try { localStorage.removeItem(name); } catch { /* ignore */ }
+      removeItem: async (name: string) => {
+        try { await AsyncStorage.removeItem(name); } catch { /* ignore */ }
       },
     };
   } catch {
@@ -62,6 +51,6 @@ function createWebStorage(): StateStorage | null {
   }
 }
 
-// Resolve best available storage: MMKV > localStorage > memory
+// Resolve best available storage: MMKV > AsyncStorage > memory
 export const zustandMMKVStorage: StateStorage =
-  createMMKVStorage() ?? createWebStorage() ?? memoryStorage;
+  createMMKVStorage() ?? createAsyncStorageSafe() ?? memoryStorage;

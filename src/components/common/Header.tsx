@@ -7,9 +7,10 @@ import { useSettingsStore } from '@/src/stores/settingsStore';
 interface HeaderProps {
   greeting?: string;
   subtitle?: string;
+  showWeather?: boolean;
 }
 
-export function Header({ greeting, subtitle }: HeaderProps) {
+export function Header({ greeting, subtitle, showWeather = false }: HeaderProps) {
   const { colors, typography: t, spacing: sp } = useTheme();
   const themeFlavor = useSettingsStore((s) => s.settings.themeFlavor);
 
@@ -24,21 +25,27 @@ export function Header({ greeting, subtitle }: HeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', paddingRight: 8 }}>
           <Text
-            style={[t.headlineLarge, { color: colors.text }]}
+            style={[t.headlineLarge, { color: colors.text, flexShrink: 1 }]}
             numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.5}
           >
             {getGreeting()}
           </Text>
           {themeFlavor === 'hello_kitty' && (
             <Image 
               source={require('../../../assets/themes/hello_kitty.png')} 
-              style={{ width: 32, height: 32, borderRadius: 16 }} 
+              style={{ width: 32, height: 32, borderRadius: 16, marginLeft: 8 }} 
             />
           )}
         </View>
-        <WeatherWidget />
+        {showWeather && (
+          <View style={{ flexShrink: 0 }}>
+            <WeatherWidget />
+          </View>
+        )}
       </View>
       {subtitle && (
         <Text

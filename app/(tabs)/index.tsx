@@ -12,9 +12,12 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { UpdateBanner } from '@/src/components/ui/UpdateBanner';
+import { BroadcastBanner } from '@/src/components/ui/BroadcastBanner';
+import { syncUpdateStatus } from '@/src/utils/updateChecker';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { useSettingsStore } from '../../src/stores/settingsStore';
 import { useTaskStore } from '../../src/stores/taskStore';
@@ -40,6 +43,8 @@ export default function HomeScreen() {
   const haptics = useHaptics();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const isSelectionMode = selectedTaskIds.size > 0;
 
   const tasks = useTaskStore((s) => s.tasks);
   const filters = useTaskStore((s) => s.filters);
@@ -51,6 +56,11 @@ export default function HomeScreen() {
   const updateStreak = useGamificationStore((s) => s.updateStreak);
   const checkAchievements = useGamificationStore((s) => s.checkAchievements);
 
+  // Check for updates on mount
+  useEffect(() => {
+    syncUpdateStatus();
+  }, []);
+
   const handleToggleTask = useCallback((task: Task) => {
     const wasCompleted = task.completed;
     toggleTask(task.id);
@@ -61,44 +71,56 @@ export default function HomeScreen() {
       checkAchievements();
     }
   }, [toggleTask, addXPForTask, updateStreak, checkAchievements]);
-  
-  // Memoize lists to avoid infinite loops and unnecessary re-renders
-  const overdue = React.useMemo(() => 
-    tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate).getTime() < new Date().setHours(0,0,0,0))
-    .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
-  , [tasks]);
 
-  const priorityOrder = { high: 1, medium: 2, low: 3 };
+  // Memoize lists to avoid infinite loops and unnecessary re-renders
+  const overdue = React.useMemo(() => {
+    const startOfToday = new Date().setHours(0, 0, 0, 0);
+    return tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate).getTime() < startOfToday)
+      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+  }, [tasks]);
+
+  const priorityOrder = { p1: 1, p2: 2, p3: 3, p4: 4 };
 
   const today = React.useMemo(() => {
-    const start = new Date().setHours(0,0,0,0);
-    const end = new Date().setHours(23,59,59,999);
-    return tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate).getTime() >= start && new Date(t.dueDate).getTime() <= end)
-    .sort((a, b) => {
-      const pA = priorityOrder[a.priority as keyof typeof priorityOrder] || 4;
-      const pB = priorityOrder[b.priority as keyof typeof priorityOrder] || 4;
-      return pA - pB;
-    });
+    const start = new Date().setHours(0, 0, 0, 0);
+    const end = new Date().setHours(23, 59, 59, 999);
+    return tasks.filter(t => {
+      if (t.completed || !t.dueDate) return false;
+      const d = new Date(t.dueDate).getTime();
+      return d >= start && d <= end;
+    })
+    .sort((a, b) => (priorityOrder[a.priority as keyof typeof priorityOrder] || 5) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 5));
   }, [tasks]);
 
   const upcoming = React.useMemo(() => {
-    const endOfToday = new Date().setHours(23,59,59,999);
+    const endOfToday = new Date().setHours(23, 59, 59, 999);
     return tasks.filter(t => !t.completed && (!t.dueDate || new Date(t.dueDate).getTime() > endOfToday))
-    .sort((a, b) => {
-      if (!a.dueDate) return 1;
-      if (!b.dueDate) return -1;
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-    });
+      .sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
   }, [tasks]);
 
-  const completed = React.useMemo(() => 
+  const completed = React.useMemo(() =>
     tasks.filter(t => t.completed)
-    .sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime())
-  , [tasks]);
+      .sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime())
+    , [tasks]);
 
   const completedToday = React.useMemo(() => {
-    const start = new Date().setHours(0,0,0,0);
-    return tasks.filter(t => t.completed && t.completedAt && new Date(t.completedAt).getTime() >= start).length;
+    const startOfToday = new Date().setHours(0, 0, 0, 0);
+    return tasks.filter(t => {
+      if (!t.completed || !t.completedAt) return false;
+      // Must be completed today
+      const isDoneToday = new Date(t.completedAt).getTime() >= startOfToday;
+      if (!isDoneToday) return false;
+      
+      // AND it must have been due today or overdue
+      if (!t.dueDate) return false;
+      const dueDate = new Date(t.dueDate).getTime();
+      const endOfToday = new Date().setHours(23, 59, 59, 999);
+      return dueDate <= endOfToday;
+    }).length;
   }, [tasks]);
 
   const totalActive = React.useMemo(() => tasks.filter(t => !t.completed).length, [tasks]);
@@ -128,9 +150,30 @@ export default function HomeScreen() {
   const filteredUpcoming = filterBySearch(filterByFilters(upcoming));
   const filteredCompleted = filterBySearch(filterByFilters(completed)).slice(0, 5);
 
-  const todayTotal = today.length + overdue.length;
-  const todayDone = completedToday;
-  const todayProgress = todayTotal > 0 ? todayDone / (todayTotal + todayDone) : 0;
+  const progressStats = React.useMemo(() => {
+    const startOfToday = new Date().setHours(0, 0, 0, 0);
+    
+    // 1. Get tasks completed today
+    const doneToday = tasks.filter(t => 
+      t.completed && t.completedAt && new Date(t.completedAt).getTime() >= startOfToday
+    );
+
+    // 2. Get ALL active tasks (not just today) to make the box more useful
+    const activeTasks = tasks.filter(t => !t.completed);
+
+    const total = doneToday.length + activeTasks.length;
+    const done = doneToday.length;
+    
+    return {
+      total,
+      done,
+      remaining: activeTasks.length,
+      percent: total > 0 ? done / total : 0
+    };
+  }, [tasks]);
+
+  const todayTotal = progressStats.remaining;
+  const todayProgress = progressStats.percent;
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -154,12 +197,12 @@ export default function HomeScreen() {
             {items.length}
           </Text>
           {onClearAll && (
-            <Pressable 
+            <Pressable
               onPress={() => {
                 haptics.selection();
                 Alert.alert(
-                  "Clear Completed Tasks",
-                  "Are you sure you want to delete all completed tasks? This cannot be undone.",
+                  "Clear Active Tasks",
+                  "Are you sure you want to delete all active tasks? This cannot be undone.",
                   [
                     { text: "Cancel", style: "cancel" },
                     { text: "Delete All", style: "destructive", onPress: onClearAll }
@@ -177,8 +220,27 @@ export default function HomeScreen() {
             key={task.id}
             task={task}
             index={index}
-            onPress={() => router.push(`/task/${task.id}` as any)}
-            onToggle={() => handleToggleTask(task)}
+            selectionMode={isSelectionMode}
+            isSelected={selectedTaskIds.has(task.id)}
+            onLongPress={() => {
+              haptics.selection();
+              setSelectedTaskIds(new Set([task.id]));
+            }}
+            onPress={() => {
+              if (isSelectionMode) {
+                haptics.selection();
+                const newSet = new Set(selectedTaskIds);
+                if (newSet.has(task.id)) newSet.delete(task.id);
+                else newSet.add(task.id);
+                setSelectedTaskIds(newSet);
+              } else {
+                router.push(`/task/${task.id}` as any);
+              }
+            }}
+            onToggle={() => {
+              if (isSelectionMode) return;
+              handleToggleTask(task);
+            }}
             onDelete={() => deleteTask(task.id)}
           />
         ))}
@@ -198,6 +260,8 @@ export default function HomeScreen() {
 
   const renderContent = () => (
     <>
+      <UpdateBanner />
+      <BroadcastBanner />
       {/* Today's Progress */}
       <Animated.View entering={FadeIn.delay(100)} style={styles.progressSection}>
         <GlassCard style={styles.progressCard}>
@@ -206,17 +270,17 @@ export default function HomeScreen() {
               <Text style={[t.titleMedium, { color: colors.text }]}>
                 Today's Progress
               </Text>
-              <Text
-                style={[
-                  t.displaySmall,
-                  { color: colors.primary, marginTop: 4 },
-                ]}
-              >
-                {completedToday} done
-              </Text>
-              <Text style={[t.caption, { color: colors.textTertiary, marginTop: 2 }]}>
-                {todayTotal} tasks remaining
-              </Text>
+                <Text
+                  style={[
+                    t.displaySmall,
+                    { color: colors.primary, marginTop: 4 },
+                  ]}
+                >
+                  {progressStats.done} done
+                </Text>
+                <Text style={[t.caption, { color: colors.textTertiary, marginTop: 2 }]}>
+                  {progressStats.remaining} {progressStats.remaining === 1 ? 'task' : 'tasks'} remaining
+                </Text>
             </View>
             <ProgressRing
               progress={todayProgress}
@@ -266,13 +330,10 @@ export default function HomeScreen() {
         ) : (
           <>
             {renderSection('Overdue', filteredOverdue, 'alert-circle', colors.danger)}
-            {renderSection('Today', filteredToday, 'today', colors.primary)}
+            {renderSection('Today', filteredToday, 'today', colors.primary, () => {
+              useTaskStore.getState().clearActiveTasks();
+            })}
             {renderSection('Upcoming', filteredUpcoming, 'calendar', colors.info)}
-            {filters.status !== 'active' &&
-              filteredCompleted.length > 0 &&
-              renderSection('Completed', filteredCompleted, 'checkmark-done', colors.success, () => {
-                useTaskStore.getState().clearCompletedTasks();
-              })}
           </>
         )}
       </View>
@@ -280,7 +341,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       {themeBackgrounds[themeFlavor] ? (
         <ImageBackground
           source={themeBackgrounds[themeFlavor]}
@@ -289,7 +350,7 @@ export default function HomeScreen() {
         >
           <ScrollView
             contentContainerStyle={{
-              paddingTop: insets.top + 12,
+              paddingTop: 12,
               paddingBottom: 100,
             }}
             refreshControl={
@@ -303,14 +364,14 @@ export default function HomeScreen() {
             decelerationRate={Platform.OS === 'android' ? 0.985 : 'normal'}
             overScrollMode="never"
           >
-            <Header subtitle={`${totalActive} tasks remaining`} />
+            <Header showWeather />
             {renderContent()}
           </ScrollView>
         </ImageBackground>
       ) : (
         <ScrollView
           contentContainerStyle={{
-            paddingTop: insets.top + 12,
+            paddingTop: 12,
             paddingBottom: 100,
           }}
           refreshControl={
@@ -324,12 +385,82 @@ export default function HomeScreen() {
           decelerationRate={Platform.OS === 'android' ? 0.985 : 'normal'}
           overScrollMode="never"
         >
-          <Header subtitle={`${totalActive} tasks remaining`} />
+          <Header subtitle={`${totalActive} tasks remaining`} showWeather />
           {renderContent()}
         </ScrollView>
       )}
 
       <FAB onPress={() => router.push('/task/create' as any)} />
+
+      {isSelectionMode && (
+        <Animated.View
+          entering={FadeInDown}
+          exiting={FadeOutDown}
+          style={{
+            position: 'absolute',
+            top: insets.top + 10,
+            left: 16,
+            right: 16,
+            backgroundColor: colors.surface,
+            borderRadius: 16,
+            padding: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 12,
+            elevation: 8,
+            borderWidth: 1,
+            borderColor: colors.border,
+            zIndex: 999,
+          }}
+        >
+          <Text style={[t.titleMedium, { color: colors.text, flex: 1 }]}>
+            {selectedTaskIds.size} Selected
+          </Text>
+          <Pressable
+            onPress={() => setSelectedTaskIds(new Set())}
+            style={{ marginRight: 16 }}
+          >
+            <Text style={[t.labelMedium, { color: colors.textSecondary }]}>Cancel</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              Alert.alert('Delete', `Delete ${selectedTaskIds.size} tasks?`, [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete', style: 'destructive', onPress: () => {
+                    const state = useTaskStore.getState();
+                    selectedTaskIds.forEach(id => state.deleteTask(id));
+                    setSelectedTaskIds(new Set());
+                    haptics.success();
+                  }
+                }
+              ]);
+            }}
+            style={{ marginRight: 16 }}
+          >
+            <Text style={[t.labelMedium, { color: colors.danger }]}>Delete</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              Alert.alert('Delete All', `Delete ALL active tasks?`, [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete All', style: 'destructive', onPress: () => {
+                    useTaskStore.getState().clearActiveTasks();
+                    setSelectedTaskIds(new Set());
+                    haptics.success();
+                  }
+                }
+              ]);
+            }}
+          >
+            <Text style={[t.labelMedium, { color: colors.danger }]}>Delete All</Text>
+          </Pressable>
+        </Animated.View>
+      )}
     </View>
   );
 }
