@@ -9,6 +9,7 @@ export interface Quote {
 export interface Riddle {
   id: string;
   question: string;
+  hint: string;
   answer: string;
 }
 

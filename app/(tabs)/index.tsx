@@ -23,7 +23,6 @@ import { Header } from '../../src/components/common/Header';
 import { WaterDroplets, WaterRippleOverlay } from '../../src/components/effects/WaterEffect';
 import { PuzzleCard } from '../../src/components/puzzle/PuzzleCard';
 import { MotivationalQuote } from '../../src/components/common/MotivationalQuote';
-import { DailyRiddle } from '../../src/components/common/DailyRiddle';
 import { SearchBar } from '../../src/components/common/SearchBar';
 import { TaskFilters } from '../../src/components/task/TaskFilters';
 import { TaskCard } from '../../src/components/task/TaskCard';
@@ -292,8 +291,6 @@ export default function HomeScreen() {
       {/* Motivational Quote */}
       <MotivationalQuote />
 
-      {/* Daily Riddle */}
-      <DailyRiddle />
       {/* Search */}
       <View style={{ marginTop: sp.lg }}>
         <SearchBar value={searchQuery} onChangeText={setSearchQuery} />

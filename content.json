@@ -15,11 +15,13 @@
     {
       "id": "1",
       "question": "What has to be broken before you can use it?",
+      "hint": "Think about breakfast foods.",
       "answer": "An egg"
     },
     {
       "id": "2",
       "question": "I’m tall when I’m young, and I’m short when I’m old. What am I?",
+      "hint": "I provide light and I melt.",
       "answer": "A candle"
     }
   ],
