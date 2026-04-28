@@ -84,15 +84,25 @@ export function DailyRiddle() {
                 <Text style={[t.labelSmall, { color: colors.warning }]}>Need a hint?</Text>
               </Pressable>
             )}
-            <Pressable
-              onPress={() => setShowAnswer(true)}
-              style={({ pressed }) => [
-                styles.revealBtn,
-                { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
-              ]}
-            >
-              <Text style={[t.labelSmall, { color: '#FFF' }]}>Reveal Answer Now</Text>
-            </Pressable>
+            
+            {/* "Give Up" button only appears after 2 minutes (60 seconds left) */}
+            {timeLeft <= 60 && (
+              <Pressable
+                onPress={() => setShowAnswer(true)}
+                style={({ pressed }) => [
+                  styles.revealBtn,
+                  { backgroundColor: colors.backgroundSecondary, opacity: pressed ? 0.8 : 1 },
+                ]}
+              >
+                <Text style={[t.labelSmall, { color: colors.danger }]}>Give Up</Text>
+              </Pressable>
+            )}
+
+            {timeLeft > 60 && !showAnswer && (
+              <View style={[styles.revealBtn, { backgroundColor: colors.backgroundTertiary, opacity: 0.5 }]}>
+                <Text style={[t.labelSmall, { color: colors.textTertiary }]}>Wait for timer...</Text>
+              </View>
+            )}
           </View>
         )}
       </GlassCard>

@@ -28,7 +28,7 @@ interface ContentActions {
   getRandomWellnessTask: () => string;
 }
 
-const REMOTE_CONTENT_URL = 'https://raw.githubusercontent.com/rawniijae/Tasky/main/content.json';
+const REMOTE_CONTENT_URL = `https://raw.githubusercontent.com/rawniijae/Tasky/main/content.json?t=${Date.now()}`;
 
 const DEFAULT_QUOTES: Quote[] = [
   { id: '1', text: 'The only way to do great work is to love what you do.', author: 'Steve Jobs' }
