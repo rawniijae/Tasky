@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeIn, Layout, SlideInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';

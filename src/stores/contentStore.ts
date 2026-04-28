@@ -35,7 +35,7 @@ const DEFAULT_QUOTES: Quote[] = [
 ];
 
 const DEFAULT_RIDDLES: Riddle[] = [
-  { id: '1', question: 'What has to be broken before you can use it?', answer: 'An egg' }
+  { id: '1', question: 'What has to be broken before you can use it?', hint: 'Think of breakfast.', answer: 'An egg' }
 ];
 
 const DEFAULT_WELLNESS = ['Take a deep breath 🧘', 'Drink some water 💧'];
