@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ikigai",
+    "title": "Ikigai",
+    "author": "Héctor García & Francesc Miralles",
+    "cover": "https://raw.githubusercontent.com/rawniijae/Tasky/main/assets/books/ikigai_cover.png",
+    "pdfUrl": "https://raw.githubusercontent.com/ThisIsSakshi/Books/master/Timepass%20%F0%9F%A4%97/Ikigai.pdf",
+    "color": "#E8915B",
+    "pages": 194,
+    "description": "The Japanese Secret to a Long and Happy Life"
+  },
+  {
+    "id": "the-trial",
+    "title": "The Trial",
+    "author": "Franz Kafka",
+    "cover": "https://raw.githubusercontent.com/rawniijae/Tasky/main/library/the%20trail.jpg",
+    "pdfUrl": "https://raw.githubusercontent.com/rawniijae/Tasky/main/library/FranzKafka_TheTrial_228pp.pdf",
+    "color": "#333333",
+    "pages": 228,
+    "description": "The story of Josef K., a man arrested and prosecuted by a remote, inaccessible authority."
+  },
+  {
+    "id": "subtle-art",
+    "title": "The Subtle Art of Not Giving a Fuck",
+    "author": "Mark Manson",
+    "cover": "https://raw.githubusercontent.com/rawniijae/Tasky/main/library/the%20art%20not%20giving%20a%20f.jpg",
+    "pdfUrl": "https://raw.githubusercontent.com/rawniijae/Tasky/main/library/The%20Subtle%20Art%20of%20Not%20Giving%20a%20Fuck%20by%20Mark%20Manson%20(z-lib.org).pdf",
+    "color": "#E8915B",
+    "pages": 212,
+    "description": "A counterintuitive approach to living a good life."
+  }
+]
