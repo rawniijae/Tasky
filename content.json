@@ -1,35 +1,65 @@
 {
   "quotes": [
-    {
-      "id": "1",
-      "text": "The only way to do great work is to love what you do.",
-      "author": "Steve Jobs"
-    },
-    {
-      "id": "2",
-      "text": "Focus on being productive instead of busy.",
-      "author": "Tim Ferriss"
-    }
+    { "id": "1", "text": "The only way to do great work is to love what you do.", "author": "Steve Jobs" },
+    { "id": "2", "text": "Focus on being productive instead of busy.", "author": "Tim Ferriss" },
+    { "id": "3", "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.", "author": "Winston Churchill" },
+    { "id": "4", "text": "Don’t watch the clock; do what it does. Keep going.", "author": "Sam Levenson" },
+    { "id": "5", "text": "Small progress is still progress.", "author": "Unknown" },
+    { "id": "6", "text": "Son.", "author": "Subhas" },
+    { "id": "7", "text": "Discipline is doing what needs to be done even when you don’t feel like it.", "author": "Unknown" },
+    { "id": "8", "text": "Push yourself, because no one else is going to do it for you.", "author": "Unknown" },
+    { "id": "9", "text": "Dream big. Start small. Act now.", "author": "Unknown" },
+    { "id": "10", "text": "Consistency beats motivation.", "author": "Unknown" },
+    { "id": "11", "text": "Make it happen. Shock everyone.", "author": "Unknown" },
+    { "id": "12", "text": "Don’t quit. Suffer now and live the rest of your life as a champion.", "author": "Muhammad Ali" },
+    { "id": "13", "text": "Your only limit is your mind.", "author": "Unknown" },
+    { "id": "14", "text": "Work hard in silence, let success make the noise.", "author": "Frank Ocean" },
+    { "id": "15", "text": "You don’t have to be extreme, just consistent.", "author": "Unknown" },
+    { "id": "16", "text": "Start where you are. Use what you have. Do what you can.", "author": "Arthur Ashe" },
+    { "id": "17", "text": "Action is the foundational key to success.", "author": "Pablo Picasso" },
+    { "id": "18", "text": "Great things never come from comfort zones.", "author": "Unknown" },
+    { "id": "19", "text": "Stay hungry, stay foolish.", "author": "Steve Jobs" },
+    { "id": "20", "text": "Progress, not perfection.", "author": "Unknown" }
   ],
   "riddles": [
-    {
-      "id": "1",
-      "question": "What has to be broken before you can use it?",
-      "hint": "Think about breakfast foods.",
-      "answer": "An egg"
-    },
-    {
-      "id": "2",
-      "question": "I’m tall when I’m young, and I’m short when I’m old. What am I?",
-      "hint": "I provide light and I melt.",
-      "answer": "A candle"
-    }
+    { "id": "1", "question": "What has to be broken before you can use it?", "hint": "Think of breakfast.", "answer": "An egg" },
+    { "id": "2", "question": "I’m tall when I’m young, and I’m short when I’m old. What am I?", "hint": "I melt and provide light.", "answer": "A candle" },
+    { "id": "3", "question": "What has hands but can’t clap?", "hint": "It tells you something important.", "answer": "A clock" },
+    { "id": "4", "question": "What gets wetter the more it dries?", "hint": "You use it after a shower.", "answer": "A towel" },
+    { "id": "5", "question": "What has a neck but no head, two arms but no hands?", "hint": "You wear it.", "answer": "A shirt" },
+    { "id": "6", "question": "What has one eye but can’t see?", "hint": "Used for sewing.", "answer": "A needle" },
+    { "id": "7", "question": "What is full of holes but still holds water?", "hint": "Found in the kitchen.", "answer": "A sponge" },
+    { "id": "8", "question": "What runs but never walks?", "hint": "Flowing through a valley.", "answer": "Water" },
+    { "id": "9", "question": "What has a face and two hands but no arms or legs?", "hint": "Tells the time.", "answer": "A clock" },
+    { "id": "10", "question": "What begins with T, ends with T, and has T in it?", "hint": "Used for brewing drinks.", "answer": "A teapot" },
+    { "id": "11", "question": "What has keys but can’t open locks?", "hint": "A musical instrument.", "answer": "A piano" },
+    { "id": "12", "question": "What can travel around the world while staying in one corner?", "hint": "Put it on an envelope.", "answer": "A stamp" },
+    { "id": "13", "question": "What gets bigger the more you take away?", "hint": "Something empty in the ground.", "answer": "A hole" },
+    { "id": "14", "question": "What has legs but doesn’t walk?", "hint": "You eat on it.", "answer": "A table" },
+    { "id": "15", "question": "What has an eye but cannot see?", "hint": "Used with thread.", "answer": "A needle" },
+    { "id": "16", "question": "What has a heart that doesn’t beat?", "hint": "A vegetable.", "answer": "An artichoke" },
+    { "id": "17", "question": "What comes once in a minute, twice in a moment, but never in a thousand years?", "hint": "Look at the spelling.", "answer": "The letter M" }
   ],
   "wellnessTasks": [
     "Drink a glass of water 💧",
     "Take 3 deep breaths 🧘",
     "Stretch your arms for 15 seconds 🙆‍♂️",
     "Look away from the screen for 20 seconds 👀",
-    "Stand up and walk for a minute 🚶"
+    "Stand up and walk for a minute 🚶",
+    "Smile for a moment 😊",
+    "Relax your shoulders 🧍",
+    "Take a short break from your phone 📵",
+    "Listen to calm music 🎧",
+    "Close your eyes and breathe slowly 🌿",
+    "Write one thing you’re grateful for ✍️",
+    "Step outside for fresh air 🌤️",
+    "Drink warm water ☕",
+    "Do 10 jumping jacks 🤸",
+    "Sit straight and fix your posture 🪑",
+    "Avoid screens for 5 minutes 🚫📱",
+    "Take a mindful breath and relax 😌",
+    "Stretch your neck gently 🔄",
+    "Blink slowly to relax your eyes 👁️",
+    "Take a short walk 🚶‍♂️"
   ]
 }
