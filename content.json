@@ -1,0 +1,33 @@
+{
+  "quotes": [
+    {
+      "id": "1",
+      "text": "The only way to do great work is to love what you do.",
+      "author": "Steve Jobs"
+    },
+    {
+      "id": "2",
+      "text": "Focus on being productive instead of busy.",
+      "author": "Tim Ferriss"
+    }
+  ],
+  "riddles": [
+    {
+      "id": "1",
+      "question": "What has to be broken before you can use it?",
+      "answer": "An egg"
+    },
+    {
+      "id": "2",
+      "question": "I’m tall when I’m young, and I’m short when I’m old. What am I?",
+      "answer": "A candle"
+    }
+  ],
+  "wellnessTasks": [
+    "Drink a glass of water 💧",
+    "Take 3 deep breaths 🧘",
+    "Stretch your arms for 15 seconds 🙆‍♂️",
+    "Look away from the screen for 20 seconds 👀",
+    "Stand up and walk for a minute 🚶"
+  ]
+}

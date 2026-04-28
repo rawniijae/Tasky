@@ -23,6 +23,7 @@ import { Header } from '../../src/components/common/Header';
 import { WaterDroplets, WaterRippleOverlay } from '../../src/components/effects/WaterEffect';
 import { PuzzleCard } from '../../src/components/puzzle/PuzzleCard';
 import { MotivationalQuote } from '../../src/components/common/MotivationalQuote';
+import { DailyRiddle } from '../../src/components/common/DailyRiddle';
 import { SearchBar } from '../../src/components/common/SearchBar';
 import { TaskFilters } from '../../src/components/task/TaskFilters';
 import { TaskCard } from '../../src/components/task/TaskCard';
@@ -30,6 +31,7 @@ import { FAB } from '../../src/components/ui/FAB';
 import { EmptyState } from '../../src/components/ui/EmptyState';
 import { ProgressRing } from '../../src/components/ui/ProgressRing';
 import { GlassCard } from '../../src/components/ui/GlassCard';
+import { WellnessToast } from '../../src/components/ui/WellnessToast';
 import { useHaptics } from '../../src/hooks/useHaptics';
 import type { Task } from '../../src/types';
 
@@ -41,6 +43,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [showWellness, setShowWellness] = useState(false);
   const isSelectionMode = selectedTaskIds.size > 0;
 
   const tasks = useTaskStore((s) => s.tasks);
@@ -63,6 +66,7 @@ export default function HomeScreen() {
       addXPForTask(task.priority);
       updateStreak();
       checkAchievements();
+      setShowWellness(true);
     }
   }, [toggleTask, addXPForTask, updateStreak, checkAchievements]);
 
@@ -287,6 +291,9 @@ export default function HomeScreen() {
 
       {/* Motivational Quote */}
       <MotivationalQuote />
+
+      {/* Daily Riddle */}
+      <DailyRiddle />
       {/* Search */}
       <View style={{ marginTop: sp.lg }}>
         <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
@@ -385,6 +392,8 @@ export default function HomeScreen() {
       )}
 
       <FAB onPress={() => router.push('/task/create' as any)} />
+
+      <WellnessToast visible={showWellness} onHide={() => setShowWellness(false)} />
 
       {isSelectionMode && (
         <Animated.View

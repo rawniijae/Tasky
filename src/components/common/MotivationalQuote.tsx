@@ -2,17 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '@/src/theme/ThemeProvider';
-import { quotes } from '@/src/utils/quotes';
+import { useContentStore } from '@/src/stores/contentStore';
 
 export function MotivationalQuote() {
   const { colors, typography: t, spacing: sp, borderRadius: br } = useTheme();
+  const getDailyQuote = useContentStore((s) => s.getDailyQuote);
+  const fetchContent = useContentStore((s) => s.fetchContent);
+  const quote = getDailyQuote();
 
-  // Pick a quote based on day of year for consistency throughout the day
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
-  const quote = quotes[dayOfYear % quotes.length];
+  React.useEffect(() => {
+    fetchContent();
+  }, []);
+
+  if (!quote) return null;
 
   return (
     <Animated.View
