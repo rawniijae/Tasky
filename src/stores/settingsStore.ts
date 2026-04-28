@@ -5,20 +5,6 @@ import type { AppSettings, ThemeMode, CategoryId, Priority, SortBy } from '@/src
 import type { ThemeFlavor } from '@/src/theme/themes';
 import Constants from 'expo-constants';
 
-interface UpdateInfo {
-  latestVersion: string;
-  updateUrl: string;
-  releaseNotes?: string;
-  isMandatory?: boolean;
-  lastChecked: string;
-}
-
-interface BroadcastMessage {
-  id: string;
-  text: string;
-  type?: 'info' | 'announcement' | 'personal';
-}
-
 const defaultSettings: AppSettings = {
   theme: 'system',
   themeFlavor: 'default',
@@ -38,7 +24,6 @@ const defaultSettings: AppSettings = {
 
 interface SettingsState {
   settings: AppSettings;
-  updateInfo: UpdateInfo | null;
   currentVersion: string;
   
   setTheme: (theme: ThemeMode) => void;
@@ -50,10 +35,6 @@ interface SettingsState {
   setSortBy: (s: SortBy) => void;
   toggleShowCompleted: () => void;
   updatePomodoroSettings: (settings: Partial<AppSettings['pomodoro']>) => void;
-  setUpdateInfo: (info: UpdateInfo | null) => void;
-  setBroadcastMessage: (msg: BroadcastMessage | null) => void;
-  dismissUpdate: (version: string) => void;
-  dismissBroadcast: (id: string) => void;
   resetSettings: () => void;
 }
 
@@ -61,10 +42,6 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       settings: defaultSettings,
-      updateInfo: null,
-      broadcastMessage: null,
-      dismissedVersion: null,
-      dismissedBroadcastId: null,
       currentVersion: Constants.expoConfig?.version || '1.0.0',
 
       setTheme: (theme) =>
@@ -102,11 +79,7 @@ export const useSettingsStore = create<SettingsState>()(
             pomodoro: { ...state.settings.pomodoro, ...pomodoroUpdates },
           },
         })),
-      setUpdateInfo: (updateInfo) => set({ updateInfo }),
-      setBroadcastMessage: (broadcastMessage) => set({ broadcastMessage }),
-      dismissUpdate: (version) => set({ dismissedVersion: version }),
-      dismissBroadcast: (id) => set({ dismissedBroadcastId: id }),
-      resetSettings: () => set({ settings: defaultSettings, updateInfo: null, dismissedVersion: null, broadcastMessage: null, dismissedBroadcastId: null }),
+      resetSettings: () => set({ settings: defaultSettings }),
     }),
     {
       name: 'tasky-settings',
@@ -114,3 +87,4 @@ export const useSettingsStore = create<SettingsState>()(
     }
   )
 );
+

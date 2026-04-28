@@ -30,11 +30,11 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor="transparent" translucent={true} />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: 'transparent' },
+          contentStyle: { backgroundColor: colors.background },
           animation: 'slide_from_right',
         }}
       >

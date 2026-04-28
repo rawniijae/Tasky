@@ -11,7 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MandatoryUpdateOverlay } from '@/src/components/ui/MandatoryUpdateOverlay';
 
 // Create a custom navigator that supports swiping between screens
 const { Navigator } = createMaterialTopTabNavigator();
@@ -85,8 +84,18 @@ export default function TabLayout() {
           paddingBottom: insets.bottom,
           elevation: 0,
           shadowOpacity: 0,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          width: '100%',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          marginHorizontal: 0,
+          paddingHorizontal: 0,
+        },
+        tabBarContentContainerStyle: {
+          width: '100%',
+          marginHorizontal: 0,
+          paddingHorizontal: 0,
         },
         tabBarItemStyle: {
           height: 60,
@@ -94,6 +103,7 @@ export default function TabLayout() {
         },
         tabBarPressColor: 'transparent',
       }}
+      sceneContainerStyle={{ backgroundColor: colors.background }}
     >
       <MaterialTabs.Screen
         name="index"
@@ -160,7 +170,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <MandatoryUpdateOverlay />
     </MaterialTabs>
   );
 }

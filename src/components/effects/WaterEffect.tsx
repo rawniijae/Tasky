@@ -152,7 +152,7 @@ function RippleCircle({
   useEffect(() => {
     progress.value = withTiming(
       1,
-      { duration: 1000, easing: Easing.bezier(0.1, 0.4, 0.4, 1) },
+      { duration: 1000, easing: Easing.out(Easing.quad) },
       (finished) => {
         if (finished) runOnJS(onComplete)();
       }

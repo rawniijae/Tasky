@@ -12,9 +12,6 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { UpdateBanner } from '@/src/components/ui/UpdateBanner';
-import { BroadcastBanner } from '@/src/components/ui/BroadcastBanner';
-import { syncUpdateStatus } from '@/src/utils/updateChecker';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInDown, FadeOutDown } from 'react-native-reanimated';
@@ -56,10 +53,7 @@ export default function HomeScreen() {
   const updateStreak = useGamificationStore((s) => s.updateStreak);
   const checkAchievements = useGamificationStore((s) => s.checkAchievements);
 
-  // Check for updates on mount
-  useEffect(() => {
-    syncUpdateStatus();
-  }, []);
+
 
   const handleToggleTask = useCallback((task: Task) => {
     const wasCompleted = task.completed;
@@ -260,8 +254,7 @@ export default function HomeScreen() {
 
   const renderContent = () => (
     <>
-      <UpdateBanner />
-      <BroadcastBanner />
+
       {/* Today's Progress */}
       <Animated.View entering={FadeIn.delay(100)} style={styles.progressSection}>
         <GlassCard style={styles.progressCard}>
@@ -341,11 +334,11 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {themeBackgrounds[themeFlavor] ? (
         <ImageBackground
           source={themeBackgrounds[themeFlavor]}
-          style={{ flex: 1 }}
+          style={{ flex: 1, paddingTop: insets.top }}
           imageStyle={{ opacity: 0.15, resizeMode: 'cover' }}
         >
           <ScrollView
@@ -370,6 +363,7 @@ export default function HomeScreen() {
         </ImageBackground>
       ) : (
         <ScrollView
+          style={{ flex: 1, paddingTop: insets.top }}
           contentContainerStyle={{
             paddingTop: 12,
             paddingBottom: 100,

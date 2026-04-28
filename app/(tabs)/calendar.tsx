@@ -45,8 +45,8 @@ export default function CalendarScreen() {
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-      <View style={{ paddingTop: 12 }}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={{ paddingTop: insets.top + 12 }}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={[t.headlineLarge, { color: colors.text }]}>

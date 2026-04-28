@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.tasky.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/logo.png",
@@ -25,7 +26,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-dev-client",
       "expo-router",
       [
         "expo-splash-screen",

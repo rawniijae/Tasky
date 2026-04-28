@@ -112,7 +112,7 @@ export default function FocusScreen() {
       : colors.info;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
@@ -120,7 +120,7 @@ export default function FocusScreen() {
         decelerationRate={Platform.OS === 'android' ? 0.985 : 'normal'}
         overScrollMode="never"
       >
-      <View style={{ paddingTop: 12 }}>
+      <View style={{ paddingTop: insets.top + 12 }}>
         <Text style={[t.headlineLarge, { color: colors.text, paddingHorizontal: 20 }]}>
           Focus
         </Text>

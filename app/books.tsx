@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  Image,
   ScrollView,
   Platform,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
@@ -17,13 +17,23 @@ import * as WebBrowser from 'expo-web-browser';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { useHaptics } from '@/src/hooks/useHaptics';
-import { BOOKS, Book } from '@/src/components/common/BookLibrary';
+import { DEFAULT_BOOKS, REMOTE_BOOKS_URL, Book } from '@/src/components/common/BookLibrary';
 
 export default function BooksScreen() {
   const { colors, typography: t, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const haptics = useHaptics();
+  const [books, setBooks] = React.useState<Book[]>(DEFAULT_BOOKS);
+
+  React.useEffect(() => {
+    fetch(REMOTE_BOOKS_URL)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setBooks(data);
+      })
+      .catch(err => console.log('Failed to fetch books:', err));
+  }, []);
 
   const handleOpenBook = useCallback(async (book: Book) => {
     haptics.medium();
@@ -75,7 +85,7 @@ export default function BooksScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[t.titleSmall, { color: '#FFF' }]}>
-                {BOOKS.length} {BOOKS.length === 1 ? 'Book' : 'Books'} Available
+                {books.length} {books.length === 1 ? 'Book' : 'Books'} Available
               </Text>
               <Text style={[t.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 2 }]}>
                 Tap on a book to start reading
@@ -89,7 +99,7 @@ export default function BooksScreen() {
           <Text style={[t.labelMedium, { color: colors.textSecondary, marginBottom: 12 }]}>
             LIBRARY
           </Text>
-          {BOOKS.map((book, index) => (
+          {books.map((book, index) => (
             <Animated.View
               key={book.id}
               entering={FadeInDown.delay(100 + index * 80).duration(400)}
@@ -100,9 +110,11 @@ export default function BooksScreen() {
               >
                 <GlassCard style={styles.bookListCard} animate={false}>
                   <Image
-                    source={book.cover}
+                    source={{ uri: book.cover }}
                     style={styles.bookListCover}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    transition={300}
+                    cachePolicy="memory-disk"
                   />
                   <View style={styles.bookListInfo}>
                     <Text style={[t.titleSmall, { color: colors.text, fontSize: 16 }]} numberOfLines={1}>

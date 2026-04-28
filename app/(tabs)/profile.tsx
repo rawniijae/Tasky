@@ -16,7 +16,6 @@ import { ProgressBar } from '@/src/components/ui/ProgressBar';
 import { ProgressRing } from '@/src/components/ui/ProgressRing';
 import { formatMinutesToDisplay } from '@/src/utils/dates';
 import { THEME_FLAVORS } from '@/src/theme/themes';
-import { syncUpdateStatus } from '@/src/utils/updateChecker';
 import type { ThemeMode } from '@/src/types';
 
 export default function ProfileScreen() {
@@ -43,7 +42,6 @@ export default function ProfileScreen() {
   const getWeeklyFocusData = useFocusStore((s) => s.getWeeklyFocusData);
 
   const { theme: themeMode, themeFlavor } = useSettingsStore((s) => s.settings);
-  const updateInfo = useSettingsStore((s) => s.updateInfo);
   const currentVersion = useSettingsStore((s) => s.currentVersion);
   const setTheme = useSettingsStore((s) => s.setTheme);
   const setThemeFlavor = useSettingsStore((s) => s.setThemeFlavor);
@@ -71,10 +69,10 @@ export default function ProfileScreen() {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: 12,
+          paddingTop: insets.top + 12,
           paddingBottom: 100,
         }}
         showsVerticalScrollIndicator={false}
@@ -300,49 +298,20 @@ export default function ProfileScreen() {
           </View>
         </Animated.View>
 
-        {/* Update Center */}
-        <Animated.View entering={FadeInDown.delay(600)} style={{ paddingHorizontal: 20, marginBottom: 16 }}>
-          <Text style={[t.titleSmall, { color: colors.text, marginBottom: 12 }]}>
-            Updates & Support
-          </Text>
+        <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
           <GlassCard style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
                 <Text style={[t.labelMedium, { color: colors.text }]}>App Version</Text>
                 <Text style={[t.caption, { color: colors.textTertiary }]}>v{currentVersion}</Text>
               </View>
-              <TouchableOpacity 
-                onPress={() => syncUpdateStatus()}
-                style={{ padding: 8 }}
-              >
-                <Text style={[t.labelSmall, { color: colors.primary }]}>Check for updates</Text>
-              </TouchableOpacity>
             </View>
-
-            {updateInfo && (
-              <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.divider }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success, marginRight: 8 }} />
-                  <Text style={[t.labelMedium, { color: colors.text }]}>Version {updateInfo.latestVersion} Available</Text>
-                </View>
-                <Text style={[t.caption, { color: colors.textSecondary, marginBottom: 16 }]}>
-                  {updateInfo.releaseNotes || 'New features and performance improvements.'}
-                </Text>
-                <TouchableOpacity 
-                  onPress={() => Linking.openURL(updateInfo.updateUrl)}
-                  style={[styles.updateButton, { backgroundColor: colors.primary }]}
-                >
-                  <Ionicons name="download-outline" size={18} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text style={[t.labelMedium, { color: '#FFF' }]}>Install Update</Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </GlassCard>
           
           <Text style={[t.caption, { color: colors.textTertiary, textAlign: 'center', marginTop: 24 }]}>
             Made with ❤️ for Productive People
           </Text>
-        </Animated.View>
+        </View>
       </ScrollView>
     </View>
   );

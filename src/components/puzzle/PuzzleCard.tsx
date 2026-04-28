@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, Pressable, Modal } from 'react-native';
-import Animated, { 
-  FadeInDown, 
-  useAnimatedStyle, 
-  withSpring, 
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  withSpring,
   withSequence,
   withDelay,
   useSharedValue,
@@ -32,16 +32,16 @@ const PUZZLE_IMAGES = [
 
 export const PuzzleCard = () => {
   const { colors, typography: t, borderRadius: br } = useTheme();
-  const { 
-    currentImageIndex, 
-    unlockedPieces, 
-    isCompleted, 
+  const {
+    currentImageIndex,
+    unlockedPieces,
+    isCompleted,
     hasSeenCelebration,
     setHasSeenCelebration,
-    nextPuzzle, 
-    totalPuzzlesCompleted 
+    nextPuzzle,
+    totalPuzzlesCompleted
   } = usePuzzleStore();
-  
+
   const [showCelebration, setShowCelebration] = useState(false);
   const scale = useSharedValue(1);
 
@@ -82,7 +82,7 @@ export const PuzzleCard = () => {
           </View>
         </View>
 
-        <View 
+        <View
           key={`grid-${currentImageIndex}`}
           style={[styles.gridContainer, { width: PUZZLE_SIZE, height: PUZZLE_SIZE }]}
         >
@@ -92,12 +92,12 @@ export const PuzzleCard = () => {
             const col = index % GRID_SIZE;
 
             return (
-              <View 
-                key={`piece-cell-${index}`} 
+              <View
+                key={`piece-cell-${index}`}
                 style={[
-                  styles.pieceContainer, 
-                  { 
-                    width: PIECE_SIZE, 
+                  styles.pieceContainer,
+                  {
+                    width: PIECE_SIZE,
                     height: PIECE_SIZE,
                     top: row * PIECE_SIZE,
                     left: col * PIECE_SIZE,
@@ -108,7 +108,7 @@ export const PuzzleCard = () => {
                 ]}
               >
                 {isUnlocked ? (
-                  <Image 
+                  <Image
                     key={`piece-image-${currentImageIndex}-${index}`}
                     source={PUZZLE_IMAGES[currentImageIndex]}
                     style={[
@@ -138,8 +138,8 @@ export const PuzzleCard = () => {
         )}
 
         {isCompleted && (
-          <Button 
-            title="Start Next Puzzle" 
+          <Button
+            title="Start Next Puzzle"
             onPress={handleNext}
             style={{ marginTop: 16 }}
           />
@@ -154,17 +154,17 @@ export const PuzzleCard = () => {
             <Text style={[t.bodyMedium, { color: colors.textSecondary, textAlign: 'center', marginTop: 8 }]}>
               You've revealed the full picture by staying productive this week!
             </Text>
-            
+
             <View style={[styles.fullImageContainer, { borderRadius: br.lg, marginTop: 24 }]}>
-              <Image 
-                source={PUZZLE_IMAGES[currentImageIndex]} 
+              <Image
+                source={PUZZLE_IMAGES[currentImageIndex]}
                 style={styles.fullImage}
                 resizeMode="cover"
               />
             </View>
 
-            <Button 
-              title="Awesome!" 
+            <Button
+              title="Awesome!"
               onPress={closeCelebration}
               style={{ marginTop: 32, width: '100%' }}
             />

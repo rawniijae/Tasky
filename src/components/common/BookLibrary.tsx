@@ -4,8 +4,8 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  Image,
 } from 'react-native';
+import { Image } from 'expo-image';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,19 +18,20 @@ export interface Book {
   id: string;
   title: string;
   author: string;
-  cover: any; // require() image
+  cover: string; // URL string
   pdfUrl: string;
   color: string;
   pages?: number;
   description?: string;
 }
 
-export const BOOKS: Book[] = [
+// Fallback books if fetch fails
+export const DEFAULT_BOOKS: Book[] = [
   {
     id: 'ikigai',
     title: 'Ikigai',
     author: 'Héctor García & Francesc Miralles',
-    cover: require('@/assets/books/ikigai_cover.png'),
+    cover: 'https://raw.githubusercontent.com/rawniijae/Tasky/main/assets/books/ikigai_cover.png',
     pdfUrl: 'https://raw.githubusercontent.com/ThisIsSakshi/Books/master/Timepass%20%F0%9F%A4%97/Ikigai.pdf',
     color: '#E8915B',
     pages: 194,
@@ -38,17 +39,31 @@ export const BOOKS: Book[] = [
   },
 ];
 
+// URL where you will host your books.json
+// You can use a GitHub Raw URL or any JSON hosting service
+export const REMOTE_BOOKS_URL = 'https://raw.githubusercontent.com/rawniijae/Tasky/main/books.json';
+
 export function BookLibrary() {
   const { colors, typography: t, isDark } = useTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const [books, setBooks] = React.useState<Book[]>(DEFAULT_BOOKS);
+
+  React.useEffect(() => {
+    fetch(REMOTE_BOOKS_URL)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setBooks(data);
+      })
+      .catch(err => console.log('Failed to fetch books:', err));
+  }, []);
 
   const handlePress = () => {
     haptics.light();
     router.push('/books' as any);
   };
 
-  const book = BOOKS[0]; // Featured book
+  const book = books[0] || DEFAULT_BOOKS[0]; // Featured book
 
   return (
     <GlassCard style={styles.container}>
@@ -62,7 +77,7 @@ export function BookLibrary() {
             <View>
               <Text style={[t.titleSmall, { color: colors.text }]}>Book Shelf</Text>
               <Text style={[t.caption, { color: colors.textTertiary }]}>
-                {BOOKS.length} {BOOKS.length === 1 ? 'book' : 'books'} available
+                {books.length} {books.length === 1 ? 'book' : 'books'} available
               </Text>
             </View>
           </View>
@@ -74,9 +89,11 @@ export function BookLibrary() {
         {/* Featured Book Card */}
         <View style={[styles.bookCard, { backgroundColor: `${book.color}${isDark ? '18' : '10'}`, borderColor: `${book.color}35` }]}>
           <Image
-            source={book.cover}
+            source={{ uri: book.cover }}
             style={styles.bookCover}
-            resizeMode="cover"
+            contentFit="cover"
+            transition={300}
+            cachePolicy="memory-disk"
           />
           <View style={styles.bookInfo}>
             <Text style={[t.titleSmall, { color: colors.text, fontSize: 15 }]} numberOfLines={1}>
