@@ -1,0 +1,11 @@
+{
+  "latestVersion": "1.1.0",
+  "forceUpdate": false,
+  "apkUrl": "https://github.com/rawniijae/Tasky/releases/latest",
+  "updateMessage": {
+    "id": "v1.1-welcome",
+    "title": "Welcome to Tasky v1.1!",
+    "body": "Type Shiii scuubaaaa. We've added a new Book Details popup, improved weather accuracy, and fixed the 'jiggling' animations. Enjoy!",
+    "type": "info"
+  }
+}
