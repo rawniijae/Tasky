@@ -68,10 +68,9 @@ export function BookLibrary() {
   return (
     <GlassCard style={styles.container}>
       <Pressable onPress={handlePress} style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={[styles.iconBadge, { backgroundColor: `${book.color}20` }]}>
+            <View style={[styles.iconBadge, { backgroundColor: `${colors.primary}20` }]}>
               <Text style={{ fontSize: 18 }}>📚</Text>
             </View>
             <View>
@@ -86,49 +85,23 @@ export function BookLibrary() {
           </View>
         </View>
 
-        {/* Featured Book Card */}
-        <View style={[styles.bookCard, { backgroundColor: `${book.color}${isDark ? '18' : '10'}`, borderColor: `${book.color}35` }]}>
-          <Image
-            source={{ uri: book.cover }}
-            style={styles.bookCover}
-            contentFit="cover"
-            transition={300}
-            cachePolicy="memory-disk"
-          />
-          <View style={styles.bookInfo}>
-            <Text style={[t.titleSmall, { color: colors.text, fontSize: 15 }]} numberOfLines={1}>
-              {book.title}
-            </Text>
-            <Text style={[t.caption, { color: colors.textSecondary, marginTop: 2 }]} numberOfLines={1}>
-              {book.author}
-            </Text>
-            {book.description && (
-              <Text style={[t.caption, { color: colors.textTertiary, marginTop: 4, fontSize: 11, lineHeight: 15 }]} numberOfLines={2}>
-                {book.description}
-              </Text>
-            )}
-            <View style={styles.bookMeta}>
-              {book.pages && (
-                <View style={[styles.metaBadge, { backgroundColor: `${book.color}25` }]}>
-                  <Ionicons name="document-text-outline" size={11} color={book.color} />
-                  <Text style={[{ color: book.color, fontSize: 10, fontWeight: '600', marginLeft: 3 }]}>
-                    {book.pages} pages
-                  </Text>
-                </View>
-              )}
-              <View style={[styles.metaBadge, { backgroundColor: `${book.color}25` }]}>
-                <Ionicons name="book-outline" size={11} color={book.color} />
-                <Text style={[{ color: book.color, fontSize: 10, fontWeight: '600', marginLeft: 3 }]}>
-                  Read Now
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
+        <LinearGradient
+          colors={isDark ? ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)'] : ['rgba(0,0,0,0.02)', 'rgba(0,0,0,0.01)']}
+          style={styles.wiseCard}
+        >
+          <Ionicons name="sparkles" size={20} color={colors.primary} style={{ marginBottom: 8 }} />
+          <Text style={[t.titleSmall, { color: colors.text, fontSize: 15, textAlign: 'center' }]}>
+            "Reading books gives you wisdom that years alone cannot."
+          </Text>
+          <Text style={[t.caption, { color: colors.textTertiary, marginTop: 6, textAlign: 'center' }]}>
+            Tap to explore your digital library
+          </Text>
+        </LinearGradient>
       </Pressable>
     </GlassCard>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -160,32 +133,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bookCard: {
-    flexDirection: 'row',
-    borderRadius: 14,
+  wiseCard: {
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
-    padding: 12,
-    gap: 12,
-    alignItems: 'center',
-  },
-  bookCover: {
-    width: 60,
-    height: 85,
-    borderRadius: 8,
-  },
-  bookInfo: {
-    flex: 1,
-  },
-  bookMeta: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 8,
-  },
-  metaBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
 });
+

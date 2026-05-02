@@ -25,6 +25,8 @@ const defaultSettings: AppSettings = {
 interface SettingsState {
   settings: AppSettings;
   currentVersion: string;
+  lastSeenUpdateId: string;
+
   
   setTheme: (theme: ThemeMode) => void;
   setThemeFlavor: (flavor: ThemeFlavor) => void;
@@ -35,14 +37,17 @@ interface SettingsState {
   setSortBy: (s: SortBy) => void;
   toggleShowCompleted: () => void;
   updatePomodoroSettings: (settings: Partial<AppSettings['pomodoro']>) => void;
+  setLastSeenUpdateId: (id: string) => void;
   resetSettings: () => void;
 }
+
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       settings: defaultSettings,
-      currentVersion: Constants.expoConfig?.version || '1.0.0',
+      currentVersion: Constants.expoConfig?.version || '1.1.0',
+      lastSeenUpdateId: '',
 
       setTheme: (theme) =>
         set((state) => ({ settings: { ...state.settings, theme } })),
@@ -79,8 +84,10 @@ export const useSettingsStore = create<SettingsState>()(
             pomodoro: { ...state.settings.pomodoro, ...pomodoroUpdates },
           },
         })),
-      resetSettings: () => set({ settings: defaultSettings }),
+      setLastSeenUpdateId: (id) => set({ lastSeenUpdateId: id }),
+      resetSettings: () => set({ settings: defaultSettings, lastSeenUpdateId: '' }),
     }),
+
     {
       name: 'tasky-settings',
       storage: createJSONStorage(() => zustandMMKVStorage),

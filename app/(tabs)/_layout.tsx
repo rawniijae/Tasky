@@ -47,132 +47,127 @@ function TabIcon({
   );
 }
 
+import { RemoteUpdateManager } from '@/src/components/common/RemoteUpdateManager';
+
 export default function TabLayout() {
   const { colors, typography: t } = useTheme();
   const haptics = useHaptics();
   const insets = useSafeAreaInsets();
 
   return (
-    <MaterialTabs
-      tabBarPosition="bottom"
-      initialRouteName="index"
-      screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textTertiary,
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          textTransform: 'none',
-          fontFamily: 'Inter_500Medium',
-          marginTop: -2,
-          marginBottom: 4,
-        },
-        tabBarIndicatorStyle: {
-          backgroundColor: colors.primary,
-          height: 3,
-          borderRadius: 3,
-          // Position the indicator at the very top of the tab bar
-          top: 0,
-          width: '10%',
-          left: '5%',
-        },
-        tabBarStyle: {
-          backgroundColor: colors.tabBar,
-          borderTopColor: colors.tabBarBorder,
-          borderTopWidth: 0.5,
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom,
-          elevation: 0,
-          shadowOpacity: 0,
-          width: '100%',
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          marginHorizontal: 0,
-          paddingHorizontal: 0,
-        },
-        tabBarContentContainerStyle: {
-          width: '100%',
-          marginHorizontal: 0,
-          paddingHorizontal: 0,
-        },
-        tabBarItemStyle: {
-          height: 60,
-          paddingTop: 8,
-        },
-        tabBarPressColor: 'transparent',
-      }}
-      sceneContainerStyle={{ backgroundColor: colors.background }}
-    >
-      <MaterialTabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon
-              name={focused ? 'home' : 'home-outline'}
-              focused={focused}
-              color={color}
-            />
-          ),
+    <View style={{ flex: 1 }}>
+      <MaterialTabs
+        tabBarPosition="bottom"
+        screenOptions={{
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textTertiary,
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 10,
+            textTransform: 'none',
+            fontFamily: 'Inter_500Medium',
+            marginTop: -2,
+            marginBottom: 4,
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: colors.primary,
+            height: 3,
+            borderRadius: 3,
+            top: 0,
+          },
+          tabBarStyle: {
+            backgroundColor: colors.tabBar,
+            borderTopColor: colors.tabBarBorder,
+            borderTopWidth: 0.5,
+            height: 60 + (insets?.bottom || 0),
+            paddingBottom: insets?.bottom || 0,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          tabBarContentContainerStyle: {
+            width: '100%',
+            marginHorizontal: 0,
+            paddingHorizontal: 0,
+          },
+          tabBarItemStyle: {
+            height: 60,
+            paddingTop: 8,
+          },
+          tabBarPressColor: 'transparent',
         }}
-      />
-      <MaterialTabs.Screen
-        name="discover"
-        options={{
-          title: 'Discover',
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon
-              name={focused ? 'compass' : 'compass-outline'}
-              focused={focused}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <MaterialTabs.Screen
-        name="calendar"
-        options={{
-          title: 'Calendar',
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon
-              name={focused ? 'calendar' : 'calendar-outline'}
-              focused={focused}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <MaterialTabs.Screen
-        name="focus"
-        options={{
-          title: 'Focus',
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon
-              name={focused ? 'timer' : 'timer-outline'}
-              focused={focused}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <MaterialTabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon
-              name={focused ? 'person' : 'person-outline'}
-              focused={focused}
-              color={color}
-            />
-          ),
-        }}
-      />
-    </MaterialTabs>
+      >
+
+        <MaterialTabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ focused, color }: { focused: boolean; color: string }) => (
+              <TabIcon
+                name={focused ? 'home' : 'home-outline'}
+                focused={focused}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <MaterialTabs.Screen
+          name="discover"
+          options={{
+            title: 'Discover',
+            tabBarIcon: ({ focused, color }: { focused: boolean; color: string }) => (
+              <TabIcon
+                name={focused ? 'compass' : 'compass-outline'}
+                focused={focused}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <MaterialTabs.Screen
+          name="calendar"
+          options={{
+            title: 'Calendar',
+            tabBarIcon: ({ focused, color }: { focused: boolean; color: string }) => (
+              <TabIcon
+                name={focused ? 'calendar' : 'calendar-outline'}
+                focused={focused}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <MaterialTabs.Screen
+          name="focus"
+          options={{
+            title: 'Focus',
+            tabBarIcon: ({ focused, color }: { focused: boolean; color: string }) => (
+              <TabIcon
+                name={focused ? 'timer' : 'timer-outline'}
+                focused={focused}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <MaterialTabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ focused, color }: { focused: boolean; color: string }) => (
+              <TabIcon
+                name={focused ? 'person' : 'person-outline'}
+                focused={focused}
+                color={color}
+              />
+            ),
+          }}
+        />
+      </MaterialTabs>
+      <RemoteUpdateManager />
+    </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   activeDot: {

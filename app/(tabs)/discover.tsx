@@ -23,7 +23,7 @@ export default function DiscoverScreen() {
       <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <ScrollView
           contentContainerStyle={{
-            paddingTop: 12,
+            paddingTop: 20,
             paddingBottom: 100,
           }}
           showsVerticalScrollIndicator={false}

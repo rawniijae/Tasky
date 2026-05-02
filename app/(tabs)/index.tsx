@@ -338,16 +338,16 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       {themeBackgrounds[themeFlavor] ? (
         <ImageBackground
           source={themeBackgrounds[themeFlavor]}
-          style={{ flex: 1, paddingTop: insets.top }}
+          style={{ flex: 1 }}
           imageStyle={{ opacity: 0.15, resizeMode: 'cover' }}
         >
           <ScrollView
             contentContainerStyle={{
-              paddingTop: 12,
+              paddingTop: 20,
               paddingBottom: 100,
             }}
             refreshControl={
@@ -367,9 +367,9 @@ export default function HomeScreen() {
         </ImageBackground>
       ) : (
         <ScrollView
-          style={{ flex: 1, paddingTop: insets.top }}
+          style={{ flex: 1 }}
           contentContainerStyle={{
-            paddingTop: 12,
+            paddingTop: 20,
             paddingBottom: 100,
           }}
           refreshControl={
@@ -398,7 +398,7 @@ export default function HomeScreen() {
           exiting={FadeOutDown}
           style={{
             position: 'absolute',
-            top: insets.top + 10,
+            top: (insets.top || 0) + 10,
             left: 16,
             right: 16,
             backgroundColor: colors.surface,

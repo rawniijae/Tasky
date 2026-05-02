@@ -5,14 +5,19 @@ import { useTheme } from '@/src/theme/ThemeProvider';
 import { useContentStore } from '@/src/stores/contentStore';
 
 export function MotivationalQuote() {
+
   const { colors, typography: t, spacing: sp, borderRadius: br } = useTheme();
-  const getDailyQuote = useContentStore((s) => s.getDailyQuote);
+  const quotes = useContentStore((s) => s.quotes);
   const fetchContent = useContentStore((s) => s.fetchContent);
-  const quote = getDailyQuote();
+  
+  // Calculate index reactively based on date and quotes length
+  const dayCounter = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const quote = quotes.length > 0 ? quotes[dayCounter % quotes.length] : null;
 
   React.useEffect(() => {
     fetchContent();
   }, []);
+
 
   if (!quote) return null;
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { quotes as fallbackQuotes } from '../utils/quotes';
 
 export interface Quote {
   id: string;
@@ -30,9 +31,11 @@ interface ContentActions {
 
 const REMOTE_CONTENT_URL = `https://raw.githubusercontent.com/rawniijae/Tasky/main/content.json?t=${Date.now()}`;
 
-const DEFAULT_QUOTES: Quote[] = [
-  { id: '1', text: 'The only way to do great work is to love what you do.', author: 'Steve Jobs' }
-];
+// Map the local fallback quotes to match the Quote interface if needed
+const DEFAULT_QUOTES: Quote[] = fallbackQuotes.map((q, idx) => ({
+  id: `fallback-${idx}`,
+  ...q
+}));
 
 const DEFAULT_RIDDLES: Riddle[] = [
   { id: '1', question: 'What has to be broken before you can use it?', hint: 'Think of breakfast.', answer: 'An egg' }
@@ -52,10 +55,16 @@ export const useContentStore = create<ContentState & ContentActions>((set, get) 
     try {
       const response = await fetch(REMOTE_CONTENT_URL);
       const data = await response.json();
+      
+      // Ensure we have valid arrays from the fetch
+      const fetchedQuotes = Array.isArray(data.quotes) && data.quotes.length > 0 ? data.quotes : DEFAULT_QUOTES;
+      const fetchedRiddles = Array.isArray(data.riddles) && data.riddles.length > 0 ? data.riddles : DEFAULT_RIDDLES;
+      const fetchedWellness = Array.isArray(data.wellnessTasks) && data.wellnessTasks.length > 0 ? data.wellnessTasks : DEFAULT_WELLNESS;
+
       set({
-        quotes: data.quotes || DEFAULT_QUOTES,
-        riddles: data.riddles || DEFAULT_RIDDLES,
-        wellnessTasks: data.wellnessTasks || DEFAULT_WELLNESS,
+        quotes: fetchedQuotes,
+        riddles: fetchedRiddles,
+        wellnessTasks: fetchedWellness,
         lastFetched: Date.now(),
         isLoading: false,
       });
@@ -67,21 +76,27 @@ export const useContentStore = create<ContentState & ContentActions>((set, get) 
 
   getDailyQuote: () => {
     const { quotes } = get();
-    if (quotes.length === 0) return null;
-    const dayOfYear = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    return quotes[dayOfYear % quotes.length];
+    if (!quotes || quotes.length === 0) return null;
+    
+    // Use a stable date-based index
+    const now = new Date();
+    const dayCounter = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+    return quotes[dayCounter % quotes.length];
   },
 
   getDailyRiddle: () => {
     const { riddles } = get();
-    if (riddles.length === 0) return null;
-    const dayOfYear = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    return riddles[dayOfYear % riddles.length];
+    if (!riddles || riddles.length === 0) return null;
+    
+    const now = new Date();
+    const dayCounter = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+    return riddles[dayCounter % riddles.length];
   },
 
   getRandomWellnessTask: () => {
     const { wellnessTasks } = get();
-    if (wellnessTasks.length === 0) return DEFAULT_WELLNESS[0];
+    if (!wellnessTasks || wellnessTasks.length === 0) return DEFAULT_WELLNESS[0];
     return wellnessTasks[Math.floor(Math.random() * wellnessTasks.length)];
   },
 }));
+

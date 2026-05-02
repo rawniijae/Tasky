@@ -4,10 +4,10 @@ export default ({ config }) => {
 
   return {
     ...config,
-    name: IS_DEV ? `${config.name} (Dev)` : config.name,
+    name: IS_DEV ? `Tasky DEV` : config.name,
     android: {
       ...config.android,
-      package: IS_DEV ? `${config.android?.package}.debug` : config.android?.package,
+      package: IS_DEV ? `${config.android?.package}.dev` : config.android?.package,
       versionCode: config.android?.versionCode || 1,
     },
     ios: {

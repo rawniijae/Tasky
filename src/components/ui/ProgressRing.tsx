@@ -42,7 +42,8 @@ export function ProgressRing({
   const center = size / 2;
 
   useEffect(() => {
-    progressAnim.value = withTiming(Math.max(0, Math.min(1, progress)), {
+    const sanitizedProgress = isNaN(progress) ? 0 : Math.max(0, Math.min(1, progress));
+    progressAnim.value = withTiming(sanitizedProgress, {
       duration: 800,
       easing: Easing.out(Easing.cubic),
     });
@@ -92,7 +93,7 @@ export function ProgressRing({
               },
             ]}
           >
-            {`${Math.round(progress * 100)}%`}
+            {`${Math.round((isNaN(progress) ? 0 : progress) * 100)}%`}
           </Text>
         ) : null}
       </View>

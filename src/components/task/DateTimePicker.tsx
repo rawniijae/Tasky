@@ -85,11 +85,12 @@ export function DateTimePicker({
     setError(err);
 
     if (!err) {
+      if (sanitizedH === '' || sanitizedM === '') return;
+      
       let hNum = parseInt(sanitizedH);
       const mNum = parseInt(sanitizedM);
       
       // If user is typing a 12-hour-like number, apply AM/PM logic
-      // This makes the AM/PM buttons useful even in 24h mode
       if (hNum <= 12) {
         if (pm && hNum < 12) hNum += 12;
         if (!pm && hNum === 12) hNum = 0;

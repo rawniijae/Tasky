@@ -64,7 +64,7 @@ export function Header({ greeting, subtitle, showWeather = false }: HeaderProps)
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 0,
     paddingBottom: 12,
   },
   topRow: {

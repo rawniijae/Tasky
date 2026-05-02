@@ -16,7 +16,8 @@ import { GlassCard } from '../ui/GlassCard';
 import { IconButton } from '../ui/IconButton';
 import { Button } from '../ui/Button';
 
-const { width } = Dimensions.get('window');
+const { width: windowWidth } = Dimensions.get('window');
+const width = windowWidth || 375; // Fallback to a standard width
 const GRID_SIZE = 3;
 const PUZZLE_SIZE = width - 80; // Padding consideration
 const PIECE_SIZE = PUZZLE_SIZE / GRID_SIZE;

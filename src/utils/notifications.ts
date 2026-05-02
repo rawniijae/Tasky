@@ -72,6 +72,7 @@ export async function scheduleTaskNotifications(
           sound: true,
           priority: Notifications.AndroidNotificationPriority.MAX,
           vibrate: [0, 500, 200, 500],
+          channelId: 'task-reminders',
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -96,6 +97,7 @@ export async function scheduleTaskNotifications(
           sound: true,
           priority: Notifications.AndroidNotificationPriority.MAX,
           vibrate: [0, 250, 250, 250],
+          channelId: 'task-reminders',
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,

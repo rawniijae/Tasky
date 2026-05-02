@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
 import Animated, { FadeIn, Layout, SlideInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/src/theme/ThemeProvider';
@@ -8,11 +8,40 @@ import { GlassCard } from '../ui/GlassCard';
 
 export function DailyRiddle() {
   const { colors, typography: t, spacing: sp } = useTheme();
-  const getDailyRiddle = useContentStore((s) => s.getDailyRiddle);
-  const riddle = getDailyRiddle();
+  const riddles = useContentStore((s) => s.riddles);
+  
+  // Calculate index reactively based on date and riddles length
+  const dayCounter = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const riddle = riddles.length > 0 ? riddles[dayCounter % riddles.length] : null;
+
   const [showAnswer, setShowAnswer] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [timeLeft, setTimeLeft] = useState(180); // 3 minutes in seconds
+  const [userAnswer, setUserAnswer] = useState('');
+  const [error, setError] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+
+  const handleCheck = () => {
+    if (!riddle) return;
+    
+    const normalize = (str: string) => 
+      str.toLowerCase()
+         .replace(/^(a|an|the)\s+/i, '')
+         .trim();
+
+    const normalizedUser = normalize(userAnswer);
+    const normalizedCorrect = normalize(riddle.answer);
+
+    // Check for exact match or if user answer is a significant part of correct answer
+    if (normalizedUser === normalizedCorrect || 
+        (normalizedUser.length >= 3 && normalizedCorrect.includes(normalizedUser))) {
+      setShowAnswer(true);
+      setIsCorrect(true);
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
 
   useEffect(() => {
     if (!riddle || showAnswer) return;
@@ -47,12 +76,6 @@ export function DailyRiddle() {
             <Ionicons name="help-circle" size={18} color={colors.info} />
           </View>
           <Text style={[t.labelMedium, { color: colors.textSecondary }]}>Daily Riddle</Text>
-          <View style={[styles.timerBadge, { backgroundColor: colors.backgroundTertiary }]}>
-            <Ionicons name="timer-outline" size={12} color={colors.textTertiary} />
-            <Text style={[t.caption, { color: colors.textTertiary, marginLeft: 4, fontSize: 10 }]}>
-              {showAnswer ? 'Revealed' : formatTime(timeLeft)}
-            </Text>
-          </View>
         </View>
 
         <Text style={[t.bodyMedium, { color: colors.text, marginTop: 12 }]}>
@@ -69,40 +92,79 @@ export function DailyRiddle() {
 
         {showAnswer ? (
           <Animated.View entering={FadeIn} style={styles.answerBox}>
-            <Text style={[t.labelSmall, { color: colors.textTertiary }]}>ANSWER:</Text>
-            <Text style={[t.titleSmall, { color: colors.success, marginTop: 2 }]}>
+            <View style={styles.answerHeader}>
+              <Ionicons 
+                name={isCorrect ? "checkmark-circle" : "information-circle"} 
+                size={16} 
+                color={isCorrect ? colors.success : colors.info} 
+              />
+              <Text style={[t.labelSmall, { color: isCorrect ? colors.success : colors.info, marginLeft: 4 }]}>
+                {isCorrect ? 'CORRECT!' : 'REVEALED'}
+              </Text>
+            </View>
+            <Text style={[t.titleSmall, { color: colors.text, marginTop: 4 }]}>
               {riddle.answer}
             </Text>
           </Animated.View>
         ) : (
-          <View style={styles.actionRow}>
-            {!showHint && (
-              <Pressable
-                onPress={() => setShowHint(true)}
-                style={[styles.smallBtn, { borderColor: colors.warning }]}
+          <View style={styles.actionSection}>
+            <View style={[styles.inputRow, { borderBottomColor: error ? colors.danger : colors.border }]}>
+              <TextInput
+                style={[styles.input, { color: colors.text, fontFamily: 'Inter_500Medium' }]}
+                placeholder={error ? "Try again..." : "Type your answer..."}
+                placeholderTextColor={error ? colors.danger : colors.textTertiary}
+                value={userAnswer}
+                onChangeText={(text) => {
+                  setUserAnswer(text);
+                  setError(false);
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Pressable 
+                onPress={handleCheck}
+                style={[styles.submitBtn, { backgroundColor: colors.primary }]}
               >
-                <Text style={[t.labelSmall, { color: colors.warning }]}>Need a hint?</Text>
+                <Ionicons name="arrow-forward" size={18} color="#FFF" />
               </Pressable>
-            )}
+            </View>
             
-            {/* "Give Up" button only appears after 2 minutes (60 seconds left) */}
-            {timeLeft <= 60 && (
-              <Pressable
-                onPress={() => setShowAnswer(true)}
-                style={({ pressed }) => [
-                  styles.revealBtn,
-                  { backgroundColor: colors.backgroundSecondary, opacity: pressed ? 0.8 : 1 },
-                ]}
-              >
-                <Text style={[t.labelSmall, { color: colors.danger }]}>Give Up</Text>
-              </Pressable>
+            {error && (
+              <Animated.View entering={FadeIn} style={{ marginTop: -8, marginBottom: 8 }}>
+                <Text style={[t.caption, { color: colors.danger }]}>Wrong answer, keep thinking!</Text>
+              </Animated.View>
             )}
 
-            {timeLeft > 60 && !showAnswer && (
-              <View style={[styles.revealBtn, { backgroundColor: colors.backgroundTertiary, opacity: 0.5 }]}>
-                <Text style={[t.labelSmall, { color: colors.textTertiary }]}>Wait for timer...</Text>
-              </View>
-            )}
+            <View style={styles.actionRow}>
+              {!showHint && (
+                <Pressable
+                  onPress={() => setShowHint(true)}
+                  style={[styles.smallBtn, { borderColor: colors.warning }]}
+                >
+                  <Text style={[t.labelSmall, { color: colors.warning }]}>Need a hint?</Text>
+                </Pressable>
+              )}
+              
+              {timeLeft <= 60 && (
+                <Pressable
+                  onPress={() => setShowAnswer(true)}
+                  style={({ pressed }) => [
+                    styles.revealBtn,
+                    { backgroundColor: colors.backgroundSecondary, opacity: pressed ? 0.8 : 1 },
+                  ]}
+                >
+                  <Text style={[t.labelSmall, { color: colors.danger }]}>Give Up</Text>
+                </Pressable>
+              )}
+
+              {timeLeft > 60 && (
+                <View style={[styles.revealBtn, { backgroundColor: colors.backgroundTertiary, opacity: 0.8 }]}>
+                  <Text style={[t.labelSmall, { color: colors.textTertiary }]}>
+                    Reveal available in {formatTime(timeLeft)}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         )}
       </GlassCard>
@@ -148,6 +210,33 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  answerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  actionSection: {
+    marginTop: 16,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    paddingBottom: 4,
+    marginBottom: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 8,
+  },
+  submitBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionRow: {
     flexDirection: 'row',

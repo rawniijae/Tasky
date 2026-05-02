@@ -177,8 +177,8 @@ export const lightColors: ThemeColors = {
   shadow: 'rgba(15,23,42,0.08)',
   overlay: 'rgba(15,23,42,0.5)',
 
-  tabBar: 'rgba(255,255,255,0.88)',
-  tabBarBorder: 'rgba(226,232,240,0.8)',
+  tabBar: '#FFFFFF',
+  tabBarBorder: '#E2E8F0',
   tabActive: '#6366F1',
   tabInactive: '#94A3B8',
 
@@ -225,8 +225,8 @@ export const darkColors: ThemeColors = {
   shadow: 'rgba(0,0,0,0.3)',
   overlay: 'rgba(0,0,0,0.6)',
 
-  tabBar: 'rgba(15,23,42,0.88)',
-  tabBarBorder: 'rgba(51,65,85,0.5)',
+  tabBar: '#0F172A',
+  tabBarBorder: '#334155',
   tabActive: '#818CF8',
   tabInactive: '#94A3B8',
 

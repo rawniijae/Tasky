@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '@/src/stores/settingsStore';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export function useHaptics() {
   const hapticEnabled = useSettingsStore((s) => s.settings.hapticEnabled);
@@ -47,5 +47,8 @@ export function useHaptics() {
     }
   }, [hapticEnabled]);
 
-  return { light, medium, heavy, success, warning, error, selection };
+  return useMemo(() => ({ 
+    light, medium, heavy, success, warning, error, selection 
+  }), [light, medium, heavy, success, warning, error, selection]);
 }
+
