@@ -29,4 +29,15 @@
     "pages": 212,
     "description": "A counterintuitive approach to living a good life."
   }
+  {
+  "id": "i-want-to-eat-your-pancreas",
+  "title": "I Want to Eat Your Pancreas",
+  "author": "Yoru Sumino",
+  "cover": "https://raw.githubusercontent.com/rawniijae/Tasky/main/library/iwteyp.jpg",
+  "pdfUrl": "https://raw.githubusercontent.com/rawniijae/Tasky/main/library/toaz.info-i-want-to-eat-your-pancreas-pr_396ede472eb0bf19bb24c667fd6032dc.pdf",
+  "color": "#FFB7C5",
+  "pages": 260,
+  "description": "An introverted high school boy finds a diary in a hospital waiting room that belongs to his classmate, Sakura Yamauchi, who is suffering from a terminal pancreatic disease."
+},
+
 ]
